@@ -1,0 +1,106 @@
+name: Vendor ctranslate2
+on:
+  push:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-x86_64
+            runs-on: ubuntu-latest
+          - name: linux-arm64
+            runs-on: ubuntu-24.04-arm
+          - name: macos-arm64
+            runs-on: macos-latest
+          - name: macos-x86_64
+            runs-on: macos-13
+          - name: windows-x86_64
+            runs-on: windows-latest
+
+    name: Build on ${{ matrix.name }}
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - name: Install dependencies (Linux x86_64)
+        if: matrix.name == 'linux-x86_64'
+        run: |
+          # cuda,cudnn
+          sudo apt install build-essential gcc dirmngr ca-certificates software-properties-common apt-transport-https dkms curl -y
+          curl -fSsL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/3bf863cc.pub | sudo gpg --dearmor | sudo tee /usr/share/keyrings/nvidia-drivers.gpg > /dev/null 2>&1
+          echo 'deb [signed-by=/usr/share/keyrings/nvidia-drivers.gpg] https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/ /' | sudo tee /etc/apt/sources.list.d/nvidia-drivers.list
+          wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
+          sudo dpkg -i cuda-keyring_1.0-1_all.deb
+          sudo apt update
+          sudo apt install cuda cudnn
+          # mkl
+          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+          sudo sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
+          sudo apt-get update
+          sudo apt-get install -y intel-mkl-64bit-2020.4-912
+          echo "LD_LIBRARY_PATH=/opt/intel/lib/intel64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+      - name: Install dependencies (Linux arm64)
+        if: matrix.name == 'linux-arm64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake libclang-dev libopenblas-dev
+      # - name: Install dependencies (MacOS ARM64)
+      #   if: matrix.name == 'macos-arm64'
+      #   run: |
+      - name: Install dependencies (MacOS x86_64)
+        if: matrix.name == 'macos-x86_64'
+        run: |
+          ONEAPI_INSTALLER_URL=https://registrationcenter-download.intel.com/akdlm/IRC_NAS/cd013e6c-49c4-488b-8b86-25df6693a9b7/m_BaseKit_p_2023.2.0.49398.dmg
+          wget -q $ONEAPI_INSTALLER_URL
+          hdiutil attach -noverify -noautofsck $(basename $ONEAPI_INSTALLER_URL)
+          sudo /Volumes/$(basename $ONEAPI_INSTALLER_URL .dmg)/bootstrapper.app/Contents/MacOS/bootstrapper --silent --eula accept --components intel.oneapi.mac.mkl.devel
+
+      - name: Install dependencies (Windows)
+        if: matrix.name == 'windows-x86_64'
+        run: |
+          $env:CUDA_ROOT = "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2"
+          $env:CUDNN_ROOT = "C:/Program Files/NVIDIA/CUDNN/v9.1"
+
+          # Install CUDA
+          curl --retry 5 --netrc-optional -L -o cuda.exe https://developer.download.nvidia.com/compute/cuda/12.2.2/local_installers/cuda_12.2.2_537.13_windows.exe
+          Start-Process -Wait -FilePath .\cuda.exe -ArgumentList "-s nvcc_12.2 cudart_12.2 cublas_dev_12.2 curand_dev_12.2"
+          Remove-Item cuda.exe
+
+          # Install cuDNN
+          curl --netrc-optional -L -C - --retry 5 -o cudnn.exe https://developer.download.nvidia.com/compute/cudnn/9.1.0/local_installers/cudnn_9.1.0_windows.exe
+          Start-Process -Wait -FilePath .\cudnn.exe -ArgumentList "-s"
+          Start-Sleep -Seconds 10
+          Remove-Item -Recurse -Force "$env:CUDNN_ROOT/bin/11.8","$env:CUDNN_ROOT/lib/11.8","$env:CUDNN_ROOT/include/11.8"
+          Move-Item "$env:CUDNN_ROOT/bin/12.4/*" "$env:CUDNN_ROOT/bin/"
+          Move-Item "$env:CUDNN_ROOT/lib/12.4/*" "$env:CUDNN_ROOT/lib/"
+          Move-Item "$env:CUDNN_ROOT/include/12.4/*" "$env:CUDNN_ROOT/include/"
+          Remove-Item "$env:CUDNN_ROOT/bin/12.4","$env:CUDNN_ROOT/lib/12.4","$env:CUDNN_ROOT/include/12.4" -Recurse -Force
+          Copy-Item "$env:CUDNN_ROOT/bin/*" "$env:CUDA_ROOT/bin/" -Recurse -Force
+          Copy-Item "$env:CUDNN_ROOT/lib/*" "$env:CUDA_ROOT/lib/" -Recurse -Force
+          Copy-Item "$env:CUDNN_ROOT/include/*" "$env:CUDA_ROOT/include/" -Recurse -Force
+          Remove-Item cudnn.exe
+
+          # Install Intel oneAPI MKL BaseKit
+          curl --netrc-optional -L -C - --retry 5 -o webimage.exe https://registrationcenter-download.intel.com/akdlm/irc_nas/19078/w_BaseKit_p_2023.0.0.25940_offline.exe
+          Start-Process -Wait -FilePath .\webimage.exe -ArgumentList "-s", "-x", "-f", "webimage_extracted", "--log", "extract.log"
+          Remove-Item webimage.exe
+          Start-Process -Wait -FilePath .\webimage_extracted\bootstrapper.exe -ArgumentList "-s", "--action", "install", "--components=intel.oneapi.win.mkl.devel", "--eula=accept", "-p=NEED_VS2017_INTEGRATION=0", "-p=NEED_VS2019_INTEGRATION=0", "--log-dir=."
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: Swatinem/rust-cache@v2
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: nightly
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: cargo build --release --no-default-features -F "os-defaults,cuda-small-binary,_vendor"
+      - name: Upload vendored artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}-vendored
+          path: target/release/vendored.tar.gz
