@@ -51,6 +51,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y intel-mkl-64bit-2020.4-912
           echo "LD_LIBRARY_PATH=/opt/intel/lib/intel64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          file=CTranslate2/include/ctranslate2/devices.h
+          if ! grep -q '#include <stdint.h>' "$file"; then
+            sed -i '0,/^#pragma once/ s|^#pragma once|#pragma once\n#include <stdint.h>|' "$file"
+          fi
       - name: Install dependencies (Linux arm64)
         if: matrix.name == 'linux-arm64'
         run: |
