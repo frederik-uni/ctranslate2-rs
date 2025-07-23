@@ -30,9 +30,6 @@ repository = "https://github.com/jkawamoto/ctranslate2-rs"
 description = "Rust bindings for OpenNMT/CTranslate2"
 
 [dependencies]
-openblas-src = { git = "https://github.com/frederik-uni/openblas-src", optional = true, features = [
-    "static",
-] }
 anyhow = "1.0.98"
 cxx = { version = "1.0", features = ["c++17"] }
 sentencepiece = { version = "0.11.3", optional = true }
@@ -90,7 +87,7 @@ tokenizers = ["dep:tokenizers"]
 
 # Features to select backends.
 mkl = ["dep:intel-mkl-src"]
-openblas = ["dep:openblas-src"]
+openblas = []
 dnnl = []
 openmp-runtime-comp = []
 openmp-runtime-intel = []

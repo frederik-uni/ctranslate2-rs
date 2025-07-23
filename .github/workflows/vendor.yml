@@ -54,14 +54,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y intel-mkl-64bit-2020.4-912
           echo "LD_LIBRARY_PATH=/opt/intel/lib/intel64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-          # cuda hack
+          # hack
           file=CTranslate2/include/ctranslate2/devices.h
           if ! grep -q '#include <stdint.h>' "$file"; then
             sed -i '0,/^#pragma once/ s|^#pragma once|#pragma once\n#include <stdint.h>|' "$file"
           fi
-      # - name: Install dependencies (Linux arm64)
-      #   if: matrix.name == 'linux-arm64'
-      #   run: |
+      - name: Install dependencies (Linux arm64)
+        if: matrix.name == 'linux-arm64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake libclang-dev libopenblas-dev
       # - name: Install dependencies (MacOS ARM64)
       #   if: matrix.name == 'macos-arm64'
       #   run: |
@@ -101,26 +103,26 @@ jobs:
           Copy-Item "$env:CUDNN_ROOT/lib/*" "$env:CUDA_ROOT/lib/" -Recurse -Force
           Copy-Item "$env:CUDNN_ROOT/include/*" "$env:CUDA_ROOT/include/" -Recurse -Force
           Remove-Item cudnn.exe
-          # mkl
           curl --netrc-optional -L -C - --retry 5 --retry-delay 10 -o webimage.exe https://registrationcenter-download.intel.com/akdlm/IRC_NAS/09a8acaf-265f-4460-866c-a3375ed5b4ff/intel-oneapi-base-toolkit-2025.2.0.591_offline.exe
           ./webimage.exe -x -f webimage_extracted --log extract.log -a --silent --action install --components intel.oneapi.win.mkl.devel --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0
-          ls webimage_extracted
-          ls webimage_extracted\components
-          ls webimage_extracted\components\intel.oneapi.win.mkl.devel
-          ls webimage_extracted\components\intel.oneapi.win.mkl.devel\compilers_and_libraries
-          ls webimage_extracted\components\intel.oneapi.win.mkl.devel\compilers_and_libraries\windows
-          ls webimage_extracted\components\intel.oneapi.win.mkl.devel\compilers_and_libraries\windows\mkl
+          if ($LASTEXITCODE -ne 0) {
+                Write-Error "Intel MKL installation failed with exit code $LASTEXITCODE"
+          }
           echo "MKLROOT=${{ github.workspace }}\webimage_extracted\components\intel.oneapi.win.mkl.devel\compilers_and_libraries\windows\mkl" >> $env:GITHUB_ENV
+
+      - name: Upload install log
+        if: matrix.name == 'windows-x86_64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mkl-install-log
+          path: extract.log
       - uses: Swatinem/rust-cache@v2
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: nightly
       - uses: Swatinem/rust-cache@v2
       - name: Build
-        if: matrix.name == 'linux-arm64'
-        run: cargo build --release --no-default-features -F "os-defaults,cuda-small-binary,_vendor,openblas"
-      - name: Build
-        if: matrix.name == 'macos-arm64'
+        if: matrix.name == 'linux-arm64' || matrix.name == 'macos-arm64'
         run: cargo build --release --no-default-features -F "os-defaults,cuda-small-binary,_vendor"
       - name: Build
         if: matrix.name != 'linux-arm64' && matrix.name != 'macos-arm64'
