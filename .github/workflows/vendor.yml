@@ -25,9 +25,6 @@ jobs:
     name: Build on ${{ matrix.name }}
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: Jimver/cuda-toolkit@master
-        if: matrix.name == 'linux-x86_64'
-        id: cuda-toolkit-linux
       - name: Install dependencies (Linux x86_64)
         if: matrix.name == 'linux-x86_64'
         run: |

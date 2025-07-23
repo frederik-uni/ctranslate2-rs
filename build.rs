@@ -174,6 +174,8 @@ fn main() {
                 (Os::Mac, false) => {
                     dnnl = true;
                     mkl = true;
+                    openmp_intel = true;
+                    openmp_comp = false;
                 }
                 (Os::Linux, true) => {
                     openmp_comp = true;
