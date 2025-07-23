@@ -159,7 +159,7 @@ fn main() {
         if cfg!(feature = "os-defaults") {
             match (os, aarch64) {
                 (Os::Win, false) => {
-                    openmp_intel = true;
+                    openmp_intel = false;
                     openmp_comp = false;
                     dnnl = true;
                     cuda = true;
@@ -221,10 +221,7 @@ fn main() {
                 cmake.define("CMAKE_CUDA_FLAGS", "-Xcompiler --include stdint.h");
             }
             if cfg!(feature = "cuda-small-binary") {
-                cmake.define(
-                    "CUDA_NVCC_FLAGS",
-                    "-Xfatbin=-compress-all --include stdint.h",
-                );
+                cmake.define("CUDA_NVCC_FLAGS", "-Xfatbin=-compress-all");
             }
             println!("cargo:rustc-link-search={}", cuda.join("lib").display());
             println!("cargo:rustc-link-search={}", cuda.join("lib64").display());
@@ -269,7 +266,7 @@ fn main() {
             cmake.define("WITH_TENSOR_PARALLEL", "ON");
         }
         if msse4_1 {
-            //cmake.define("CMAKE_CXX_FLAGS", "-msse4.1");
+            cmake.define("CMAKE_CXX_FLAGS", "-msse4.1");
         }
         if dnnl {
             build_dnnl();
