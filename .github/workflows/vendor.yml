@@ -36,6 +36,8 @@ jobs:
           sudo dpkg -i cuda-keyring_1.0-1_all.deb
           sudo apt update
           sudo apt install cuda cudnn
+          sudo apt install libopenmpi-dev openmpi-bin
+          sudo apt install -y libnccl2 libnccl-dev
           echo "CUDA_PATH=/usr/local/cuda" >> $GITHUB_ENV
           echo "CUDA_ROOT=/usr/local/cuda" >> $GITHUB_ENV
           echo "CUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda" >> $GITHUB_ENV
@@ -60,6 +62,7 @@ jobs:
       - name: Install dependencies (MacOS x86_64)
         if: matrix.name == 'macos-x86_64'
         run: |
+          brew install libomp
           ONEAPI_INSTALLER_URL=https://registrationcenter-download.intel.com/akdlm/IRC_NAS/cd013e6c-49c4-488b-8b86-25df6693a9b7/m_BaseKit_p_2023.2.0.49398.dmg
           wget -q $ONEAPI_INSTALLER_URL
           hdiutil attach -noverify -noautofsck $(basename $ONEAPI_INSTALLER_URL)
@@ -93,6 +96,10 @@ jobs:
           Copy-Item "$env:CUDNN_ROOT/lib/*" "$env:CUDA_ROOT/lib/" -Recurse -Force
           Copy-Item "$env:CUDNN_ROOT/include/*" "$env:CUDA_ROOT/include/" -Recurse -Force
           Remove-Item cudnn.exe
+          curl --netrc-optional -L -C - --retry 5 --retry-delay 10 -o webimage.exe https://registrationcenter-download.intel.com/akdlm/IRC_NAS/09a8acaf-265f-4460-866c-a3375ed5b4ff/intel-oneapi-base-toolkit-2025.2.0.591_offline.exe
+          ./webimage.exe -s -x -f webimage_extracted --log extract.log
+          rm webimage.exe
+          ./webimage_extracted/bootstrapper.exe -s --action install --components="intel.oneapi.win.mkl.devel" --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 --log-dir=.
 
       - uses: actions/checkout@v4
         with:
@@ -103,7 +110,11 @@ jobs:
           toolchain: nightly
       - uses: Swatinem/rust-cache@v2
       - name: Build
+        if: ${{ matrix.name == 'linux-arm64' || matrix.name = 'macos-arm64' }}
         run: cargo build --release --no-default-features -F "os-defaults,cuda-small-binary,_vendor"
+      - name: Build
+        if: ${{ matrix.name != 'linux-arm64' && matrix.name != 'macos-arm64' }}
+        run: cargo build --release --no-default-features -F "os-defaults,cuda-small-binary,_vendor,mkl"
       - name: Upload vendored artifact
         uses: actions/upload-artifact@v4
         with:

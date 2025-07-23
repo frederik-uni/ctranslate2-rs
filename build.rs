@@ -216,10 +216,10 @@ fn main() {
         if cuda {
             let cuda = cuda_root().expect("CUDA_TOOLKIT_ROOT_DIR is not specified");
             cmake.define("WITH_CUDA", "ON");
-            cmake.define("CUDA_TOOLKIT_ROOT_DIR", "Common");
-            cmake.define("CUDA_ARCH_LIST", &cuda);
+            // cmake.define("CUDA_TOOLKIT_ROOT_DIR", "Common");
+            // cmake.define("CUDA_ARCH_LIST", &cuda);
             if cfg!(feature = "cuda-small-binary") {
-                cmake.define("CUDA_NVCC_FLAGS", "-Xfatbin=-compress-all");
+                // cmake.define("CUDA_NVCC_FLAGS", "-Xfatbin=-compress-all");
             }
             println!("cargo:rustc-link-search={}", cuda.join("lib").display());
             println!("cargo:rustc-link-search={}", cuda.join("lib64").display());
