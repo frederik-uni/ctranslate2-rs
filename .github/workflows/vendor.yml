@@ -87,11 +87,6 @@ jobs:
           Copy-Item "$env:CUDNN_ROOT/include/*" "$env:CUDA_ROOT/include/" -Recurse -Force
           Remove-Item cudnn.exe
 
-          # Install Intel oneAPI MKL BaseKit
-          curl --netrc-optional -L -C - --retry 5 -o webimage.exe https://registrationcenter-download.intel.com/akdlm/irc_nas/19078/w_BaseKit_p_2023.0.0.25940_offline.exe
-          Start-Process -Wait -FilePath .\webimage.exe -ArgumentList "-s", "-x", "-f", "webimage_extracted", "--log", "extract.log"
-          Remove-Item webimage.exe
-          Start-Process -Wait -FilePath .\webimage_extracted\bootstrapper.exe -ArgumentList "-s", "--action", "install", "--components=intel.oneapi.win.mkl.devel", "--eula=accept", "-p=NEED_VS2017_INTEGRATION=0", "-p=NEED_VS2019_INTEGRATION=0", "--log-dir=."
       - uses: actions/checkout@v4
         with:
           submodules: recursive
