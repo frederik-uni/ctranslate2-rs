@@ -277,7 +277,11 @@ fn main() {
             println!("cargo:rustc-link-lib=gomp");
             cmake.define("OPENMP_RUNTIME", "COMP");
         } else if openmp_intel {
-            println!("cargo:rustc-link-lib=iomp5");
+            if os == Os::Win {
+                println!("cargo:rustc-link-lib=dylib=iomp5md");
+            } else {
+                println!("cargo:rustc-link-lib=iomp5");
+            }
             cmake.define("OPENMP_RUNTIME", "INTEL");
         }
         if flash_attention {
