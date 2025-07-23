@@ -67,10 +67,17 @@ jobs:
           wget -q $ONEAPI_INSTALLER_URL
           hdiutil attach -noverify -noautofsck $(basename $ONEAPI_INSTALLER_URL)
           sudo /Volumes/$(basename $ONEAPI_INSTALLER_URL .dmg)/bootstrapper.app/Contents/MacOS/bootstrapper --silent --eula accept --components intel.oneapi.mac.mkl.devel
-
+      - uses: actions/cache@v4
+        if: matrix.name == 'windows-x86_64'
+        with:
+          path: C:/vcpkg/installed
+          key: cache-vcpkg-packages
       - name: Install dependencies (Windows)
         if: matrix.name == 'windows-x86_64'
         run: |
+          vcpkg install openblas:x64-windows-static
+          echo "CMAKE_INCLUDE_PATH=$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows-static/include/openblas;$env:CMAKE_INCLUDE_PATH" >> $env:GITHUB_ENV
+          echo "CMAKE_LIBRARY_PATH=$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows-static/lib;$env:CMAKE_LIBRARY_PATH" >> $env:GITHUB_ENV
           echo "CUDA_ROOT=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2" >> $env:GITHUB_ENV
           echo "CUDA_PATH=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2" >> $env:GITHUB_ENV
           echo "CUDNN_ROOT=C:/Program Files/NVIDIA/CUDNN/v9.1" >> $env:GITHUB_ENV
@@ -96,8 +103,7 @@ jobs:
           Copy-Item "$env:CUDNN_ROOT/lib/*" "$env:CUDA_ROOT/lib/" -Recurse -Force
           Copy-Item "$env:CUDNN_ROOT/include/*" "$env:CUDA_ROOT/include/" -Recurse -Force
           Remove-Item cudnn.exe
-          curl --netrc-optional -L -C - --retry 5 --retry-delay 10 -o webimage.exe https://registrationcenter-download.intel.com/akdlm/IRC_NAS/09a8acaf-265f-4460-866c-a3375ed5b4ff/intel-oneapi-base-toolkit-2025.2.0.591_offline.exe
-          ./webimage.exe -x -f webimage_extracted --log extract.log -a --silent --action install --components intel.oneapi.win.mkl.devel --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0
+
       - uses: actions/checkout@v4
         with:
           submodules: recursive
