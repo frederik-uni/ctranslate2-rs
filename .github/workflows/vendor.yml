@@ -38,7 +38,13 @@ jobs:
           wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
           sudo dpkg -i cuda-keyring_1.0-1_all.deb
           sudo apt update
-          sudo apt install cudnn
+          sudo apt install cuda cudnn
+          echo "CUDA_PATH=/usr/local/cuda" >> $GITHUB_ENV
+          echo "CUDA_ROOT=/usr/local/cuda" >> $GITHUB_ENV
+          echo "CUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda" >> $GITHUB_ENV
+          echo "CUDNN_LIB=/usr/lib/x86_64-linux-gnu" >> $GITHUB_ENV
+          echo "PATH=/usr/local/cuda/bin:$PATH" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           # mkl
           wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
           sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
@@ -65,6 +71,10 @@ jobs:
       - name: Install dependencies (Windows)
         if: matrix.name == 'windows-x86_64'
         run: |
+          echo "CUDA_ROOT=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2" >> $env:GITHUB_ENV
+          echo "CUDA_PATH=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2" >> $env:GITHUB_ENV
+          echo "CUDNN_ROOT=C:/Program Files/NVIDIA/CUDNN/v9.1" >> $env:GITHUB_ENV
+          echo "PATH=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2/bin;$env:PATH" >> $env:GITHUB_ENV
           $env:CUDA_ROOT = "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2"
           $env:CUDNN_ROOT = "C:/Program Files/NVIDIA/CUDNN/v9.1"
 
