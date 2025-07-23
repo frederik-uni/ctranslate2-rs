@@ -223,7 +223,7 @@ fn main() {
             if cfg!(feature = "cuda-small-binary") {
                 cmake.define(
                     "CUDA_NVCC_FLAGS",
-                    "-Xfatbin=-compress-all -Xcompiler --include stdint.h",
+                    "-Xfatbin=-compress-all --include stdint.h",
                 );
             }
             println!("cargo:rustc-link-search={}", cuda.join("lib").display());
