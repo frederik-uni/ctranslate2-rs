@@ -218,10 +218,13 @@ fn main() {
             cmake.define("WITH_CUDA", "ON");
             cmake.define("CUDA_TOOLKIT_ROOT_DIR", "Common");
             if os == Os::Linux {
-                cmake.define("CMAKE_CUDA_FLAGS", "--include stdint.h");
+                cmake.define("CMAKE_CUDA_FLAGS", "-Xcompiler --include stdint.h");
             }
             if cfg!(feature = "cuda-small-binary") {
-                cmake.define("CUDA_NVCC_FLAGS", "-Xfatbin=-compress-all");
+                cmake.define(
+                    "CUDA_NVCC_FLAGS",
+                    "-Xfatbin=-compress-all -Xcompiler --include stdint.h",
+                );
             }
             println!("cargo:rustc-link-search={}", cuda.join("lib").display());
             println!("cargo:rustc-link-search={}", cuda.join("lib64").display());
