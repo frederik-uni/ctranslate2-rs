@@ -62,8 +62,14 @@ jobs:
       - name: Install dependencies (Linux arm64)
         if: matrix.name == 'linux-arm64'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake libclang-dev libopenblas-dev
+          OPENBLAS_VERSION=0.3.21
+          curl -L -O https://github.com/xianyi/OpenBLAS/releases/download/v${OPENBLAS_VERSION}/OpenBLAS-${OPENBLAS_VERSION}.tar.gz
+          tar xf *.tar.gz && rm *.tar.gz
+          cd OpenBLAS-*
+          make TARGET=ARMV8 NO_SHARED=1 BUILD_SINGLE=1 NO_LAPACK=1 ONLY_CBLAS=1 USE_OPENMP=1 NUM_THREADS=32 NUM_PARALLEL=8
+          sudo make install NO_SHARED=1
+          cd ..
+          rm -r OpenBLAS-*
       # - name: Install dependencies (MacOS ARM64)
       #   if: matrix.name == 'macos-arm64'
       #   run: |
