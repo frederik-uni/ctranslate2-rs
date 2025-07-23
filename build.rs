@@ -248,8 +248,8 @@ fn main() {
         if mkl {
             cmake.define("WITH_MKL", "ON");
             if os == Os::Win {
-                let mkl_root = env::var("MKL_ROOT").unwrap_or_else(|_| {
-                    panic!("MKL_ROOT environment variable not set");
+                let mkl_root = env::var("MKLROOT").unwrap_or_else(|_| {
+                    panic!("MKLROOT environment variable not set");
                 });
                 println!("cargo:include={}/include", mkl_root);
             }
