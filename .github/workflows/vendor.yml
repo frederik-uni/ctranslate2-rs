@@ -104,6 +104,12 @@ jobs:
           # mkl
           curl --netrc-optional -L -C - --retry 5 --retry-delay 10 -o webimage.exe https://registrationcenter-download.intel.com/akdlm/IRC_NAS/09a8acaf-265f-4460-866c-a3375ed5b4ff/intel-oneapi-base-toolkit-2025.2.0.591_offline.exe
           ./webimage.exe -x -f webimage_extracted --log extract.log -a --silent --action install --components intel.oneapi.win.mkl.devel --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0
+          ls webimage_extracted
+          ls webimage_extracted\components
+          ls webimage_extracted\components\intel.oneapi.win.mkl.devel
+          ls webimage_extracted\components\intel.oneapi.win.mkl.devel\compilers_and_libraries
+          ls webimage_extracted\components\intel.oneapi.win.mkl.devel\compilers_and_libraries\windows
+          ls webimage_extracted\components\intel.oneapi.win.mkl.devel\compilers_and_libraries\windows\mkl
           echo "MKLROOT=${{ github.workspace }}\webimage_extracted\components\intel.oneapi.win.mkl.devel\compilers_and_libraries\windows\mkl" >> $env:GITHUB_ENV
       - uses: Swatinem/rust-cache@v2
       - uses: dtolnay/rust-toolchain@stable
