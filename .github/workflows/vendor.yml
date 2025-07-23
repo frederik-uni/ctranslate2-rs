@@ -69,7 +69,7 @@ jobs:
           make TARGET=ARMV8 NO_SHARED=1 BUILD_SINGLE=1 NO_LAPACK=1 ONLY_CBLAS=1 USE_OPENMP=1 NUM_THREADS=32 NUM_PARALLEL=8
           sudo make install NO_SHARED=1
           cd ..
-          echo "PKG_CONFIG_PATH=/opt/OpenBLAS/lib/pkgconfig" >> $GITHUB_ENV
+          echo "LIBRARY_PATH=/opt/OpenBLAS/lib" >> $GITHUB_ENV
           echo "OPENBLAS_DIR=/opt/OpenBLAS" >> $GITHUB_ENV
           echo "OPENBLAS_STATIC=1" >> $GITHUB_ENV
       # - name: Install dependencies (MacOS ARM64)
