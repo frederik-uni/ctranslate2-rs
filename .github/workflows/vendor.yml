@@ -110,10 +110,10 @@ jobs:
           toolchain: nightly
       - uses: Swatinem/rust-cache@v2
       - name: Build
-        if: ${{ matrix.name == 'linux-arm64' || matrix.name = 'macos-arm64' }}
+        if: matrix.name == 'linux-arm64' || matrix.name = 'macos-arm64'
         run: cargo build --release --no-default-features -F "os-defaults,cuda-small-binary,_vendor"
       - name: Build
-        if: ${{ matrix.name != 'linux-arm64' && matrix.name != 'macos-arm64' }}
+        if: matrix.name != 'linux-arm64' && matrix.name != 'macos-arm64'
         run: cargo build --release --no-default-features -F "os-defaults,cuda-small-binary,_vendor,mkl"
       - name: Upload vendored artifact
         uses: actions/upload-artifact@v4
