@@ -217,9 +217,6 @@ fn main() {
             let cuda = cuda_root().expect("CUDA_TOOLKIT_ROOT_DIR is not specified");
             cmake.define("WITH_CUDA", "ON");
             cmake.define("CUDA_TOOLKIT_ROOT_DIR", "Common");
-            if os == Os::Linux {
-                cmake.define("CMAKE_CUDA_FLAGS", "-Xcompiler --include stdint.h");
-            }
             if cfg!(feature = "cuda-small-binary") {
                 cmake.define("CUDA_NVCC_FLAGS", "-Xfatbin=-compress-all");
             }
@@ -250,6 +247,12 @@ fn main() {
 
         if mkl {
             cmake.define("WITH_MKL", "ON");
+            if os == Os::Win {
+                let mkl_root = env::var("MKL_ROOT").unwrap_or_else(|_| {
+                    panic!("MKL_ROOT environment variable not set");
+                });
+                println!("cargo:include={}/include", mkl_root);
+            }
         }
         if openblas {
             println!("cargo:rustc-link-lib=static=openblas");
