@@ -266,7 +266,7 @@ fn main() {
             cmake.define("WITH_TENSOR_PARALLEL", "ON");
         }
         if msse4_1 {
-            // cmake.define("CMAKE_CXX_FLAGS", "-msse4.1");
+            //cmake.define("CMAKE_CXX_FLAGS", "-msse4.1");
         }
         if dnnl {
             build_dnnl();
