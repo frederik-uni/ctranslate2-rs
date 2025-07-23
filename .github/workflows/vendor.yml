@@ -25,6 +25,9 @@ jobs:
     name: Build on ${{ matrix.name }}
     runs-on: ${{ matrix.runs-on }}
     steps:
+      - uses: Jimver/cuda-toolkit@master
+        if: matrix.name == 'linux-x86_64'
+        id: cuda-toolkit-linux
       - name: Install dependencies (Linux x86_64)
         if: matrix.name == 'linux-x86_64'
         run: |
@@ -35,7 +38,7 @@ jobs:
           wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
           sudo dpkg -i cuda-keyring_1.0-1_all.deb
           sudo apt update
-          sudo apt install cuda cudnn
+          sudo apt install cudnn
           # mkl
           wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
           sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
