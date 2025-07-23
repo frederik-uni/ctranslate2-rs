@@ -116,7 +116,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
                 Write-Error "Intel MKL installation failed with exit code $LASTEXITCODE"
           }
-          echo "MKLROOT=${{ github.workspace }}\webimage_extracted\components\intel.oneapi.win.mkl.devel\compilers_and_libraries\windows\mkl" >> $env:GITHUB_ENV
+          echo "MKLROOT=C:\Program Files (x86)\Intel\oneAPI\mkl" >> $env:GITHUB_ENV
 
       - name: Upload install log
         if: matrix.name == 'windows-x86_64'

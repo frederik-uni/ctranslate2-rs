@@ -255,8 +255,6 @@ fn main() {
             }
         }
         if openblas {
-            println!("cargo:rustc-link-search=native=/opt/OpenBLAS/lib");
-            println!("cargo:include=/home/runner/work/ctranslate2-rs/ctranslate2-rs/OpenBLAS-0.3.21/include");
             println!("cargo:rustc-link-lib=static=openblas");
             cmake.define("WITH_OPENBLAS", "ON");
         }
