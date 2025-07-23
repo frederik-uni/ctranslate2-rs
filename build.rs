@@ -255,8 +255,9 @@ fn main() {
             }
         }
         if openblas {
-            println!("cargo:include=/usr/include/");
+            println!("cargo:rustc-link-search=native=/opt/OpenBLAS/lib");
             println!("cargo:rustc-link-lib=static=openblas");
+            println!("cargo:include=/opt/OpenBLAS/include");
             cmake.define("WITH_OPENBLAS", "ON");
         }
         if ruy {
