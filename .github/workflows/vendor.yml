@@ -75,7 +75,7 @@ jobs:
       - name: Install dependencies (Windows)
         if: matrix.name == 'windows-x86_64'
         run: |
-          vcpkg install openblas:x64-windows-static
+          vcpkg install intel-openmp:x64-windows
           echo "CMAKE_INCLUDE_PATH=$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows-static/include/openblas;$env:CMAKE_INCLUDE_PATH" >> $env:GITHUB_ENV
           echo "CMAKE_LIBRARY_PATH=$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows-static/lib;$env:CMAKE_LIBRARY_PATH" >> $env:GITHUB_ENV
           echo "CUDA_ROOT=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2" >> $env:GITHUB_ENV
