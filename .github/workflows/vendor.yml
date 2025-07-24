@@ -77,7 +77,8 @@ jobs:
           echo "LIBRARY_PATH=/opt/OpenBLAS/lib" >> $GITHUB_ENV
           echo "OPENBLAS_DIR=/opt/OpenBLAS" >> $GITHUB_ENV
           echo "OPENBLAS_STATIC=1" >> $GITHUB_ENV
-          echo "OPENBLAS_INCLUDE_DIR=/opt/OpenBLAS/include" >> $GITHUB_ENV
+          echo "CMAKE_PREFIX_PATH=/opt/OpenBLAS" >> $GITHUB_ENV
+          ls /opt/OpenBLAS/include
       # - name: Install dependencies (MacOS ARM64)
       #   if: matrix.name == 'macos-arm64'
       #   run: |
