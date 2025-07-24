@@ -175,7 +175,7 @@ jobs:
         with:
           name: dyn-${{ runner.name }}
           path: |
-            /opt/homebrew/opt/libomp/lib/libiomp5.dylib
+            /usr/local/opt/libomp/lib/libiomp5.dylib
 
       - name: Upload bundle(Linux)
         if: matrix.name == 'linux-x86_64'
