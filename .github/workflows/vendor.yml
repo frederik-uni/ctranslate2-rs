@@ -92,6 +92,7 @@ jobs:
           .\nuget.exe install intelmkl.devel.win-x64
           .\nuget.exe install intelopenmp.redist.win
           .\nuget.exe install intelopenmp.devel.win
+
       - name: Install dependencies (Windows)
         if: matrix.name == 'windows-x86_64'
         run: |
