@@ -159,39 +159,30 @@ jobs:
         with:
           name: static-${{ matrix.name }}
           path: target/release/vendored.tar.gz
-      - name: Find and Copy Dylibs
-        shell: bash
+      - name: Bundle dylibs (Linux)
+        if: runner.os == 'Linux'
         run: |
           mkdir -p bundled_libs
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            BIN=target/release/ct2rs.exe
-          else
-            BIN=target/release/ct2rs
-          fi
-          echo "Runner OS is $RUNNER_OS"
-          echo "Collecting dylibs for $BIN"
+          BIN=target/release/your_binary
+          ldd $BIN | awk '/=>/ {print $3}' | grep -v 'linux-vdso' | while read lib; do cp -v "$lib" bundled_libs/; done
 
-          if [[ "$RUNNER_OS" == "Linux" ]]; then
-            ldd $BIN | awk '/=>/ {print $3}' | grep -v 'linux-vdso' | while read lib; do cp -v "$lib" bundled_libs/; done
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            otool -L "$BIN" | tail -n +2 | awk '{print $1}' | grep -v '^/usr/lib' | while read lib; do
-              # Resolve @rpath and other dynamic paths if needed — optional step
-              # Skip if file doesn't exist
-              if [[ -f "$lib" ]]; then
-                cp -v "$lib" bundled_libs/
-              else
-                echo "Skipping missing library: $lib"
-              fi
-            done
-          elif [[ "$RUNNER_OS" == "Windows" ]]; then
-            mkdir -p bin_deps
-            # Dumpbin or some custom logic — or pre-know the DLLs (like iomp5md.dll, etc)
-            echo "Copying manually known DLLs"
-            cp "C:/Path/To/Dependency.dll" bundled_libs/
-          fi
+      - name: Bundle dylibs (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install dylibbundler
+          mkdir -p bundled_libs
+          dylibbundler -od -b -x target/release/your_binary -d bundled_libs
 
-      - name: Upload dylibs as artifact
+      - name: Bundle DLLs (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          mkdir bundled_libs
+
+      - name: Upload bundle
         uses: actions/upload-artifact@v4
         with:
-          name: dylibs-${{ matrix.name }}
-          path: bundled_libs
+          name: bundled-${{ runner.os }}
+          path: |
+            target/release/your_binary*
+            bundled_libs/
