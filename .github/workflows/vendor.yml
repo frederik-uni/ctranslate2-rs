@@ -171,6 +171,7 @@ jobs:
             BIN=target/release/ct2rs.exe
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
             BIN=target/release/ct2rs
+          fi
 
           echo "Collecting dylibs for $BIN"
 
