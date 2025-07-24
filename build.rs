@@ -110,7 +110,7 @@ fn main() {
         match (os, aarch64) {
             (Os::Win, false) => {
                 println!("cargo:rustc-link-lib=cudnn");
-                println!("cargo:rustc-link-lib=iomp5");
+                // println!("cargo:rustc-link-lib=iomp5md");
                 found = true;
             }
             (Os::Mac, true) => {
@@ -159,7 +159,7 @@ fn main() {
         if cfg!(feature = "os-defaults") {
             match (os, aarch64) {
                 (Os::Win, false) => {
-                    openmp_intel = true;
+                    openmp_intel = false;
                     openmp_comp = false;
                     dnnl = true;
                     cuda = true;

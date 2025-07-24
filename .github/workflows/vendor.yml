@@ -93,10 +93,7 @@ jobs:
         if: matrix.name == 'windows-x86_64'
         run: |
           curl -L -o nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
-          .\nuget.exe install intelmkl.redist.win-x64
           .\nuget.exe install intelmkl.devel.win-x64
-          .\nuget.exe install intelopenmp.redist.win
-          .\nuget.exe install intelopenmp.devel.win
           $base = Join-Path $Env:GITHUB_WORKSPACE "intelmkl.devel.win-x64.*"
           $mklDir = Get-ChildItem -Path $base -Directory | Select-Object -First 1
 
@@ -111,8 +108,6 @@ jobs:
           }
           Rename-Item -Path "D:\a\ctranslate2-rs\ctranslate2-rs\intelopenmp.redist.win.2025.2.0.756\runtimes\win-x64\native" -NewName "lib"
           echo "MKLROOT=$libPath" >> $Env:GITHUB_ENV
-          echo "INTEL_ROOT=D:\a\ctranslate2-rs\ctranslate2-rs\intelopenmp.redist.win.2025.2.0.756\runtimes\win-x64" >> $Env:GITHUB_ENV
-          echo "LIBRARY_PATH=D:\a\ctranslate2-rs\ctranslate2-rs\intelopenmp.redist.win.2025.2.0.756\runtimes\win-x64\lib" >> $Env:GITHUB_ENV
       - name: Print directory tree
         if: matrix.name == 'windows-x86_64'
         shell: pwsh
@@ -172,13 +167,6 @@ jobs:
           BIN=target/release/ct2rs
           ldd $BIN | awk '/=>/ {print $3}' | grep -v 'linux-vdso' | while read lib; do cp -v "$lib" bundled_libs/; done
 
-      - name: Bundle dylibs (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          brew install dylibbundler
-          mkdir -p bundled_libs
-          dylibbundler -od -b -x target/release/ct2rs -d bundled_libs
-
       - name: Bundle DLLs (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -186,8 +174,23 @@ jobs:
           mkdir bundled_libs
 
       - name: Upload bundle
+        if: runner.name == 'macos-x86_64'
         uses: actions/upload-artifact@v4
         with:
           name: bundled-${{ runner.name }}
           path: |
-            bundled_libs/
+            /opt/homebrew/opt/libomp/lib/libiomp5.dylib
+      - name: Upload bundle
+        if: runner.name == 'linux-x86_64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundled-${{ runner.name }}
+          path: |
+            /usr/lib/x86_64-linux-gnu/libcudnn.so
+      - name: Upload bundle
+        if: runner.name == 'windows-x86_64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundled-${{ runner.name }}
+          path: |
+            C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/lib/x64/libcudnn.dll
