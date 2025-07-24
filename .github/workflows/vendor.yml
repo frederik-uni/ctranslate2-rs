@@ -112,7 +112,7 @@ jobs:
           Rename-Item -Path "D:\a\ctranslate2-rs\ctranslate2-rs\intelopenmp.redist.win.2025.2.0.756\runtimes\win-x64\native" -NewName "lib"
           echo "MKLROOT=$libPath" >> $Env:GITHUB_ENV
           echo "INTEL_ROOT=D:\a\ctranslate2-rs\ctranslate2-rs\intelopenmp.redist.win.2025.2.0.756\runtimes\win-x64" >> $Env:GITHUB_ENV
-          echo "LIBRARY_PATH=D:\a\ctranslate2-rs\ctranslate2-rs\intelopenmp.redist.win.2025.2.0.756\runtimes\win-x64\lib\ >> $Env:GITHUB_ENV
+          echo "LIBRARY_PATH=D:\a\ctranslate2-rs\ctranslate2-rs\intelopenmp.redist.win.2025.2.0.756\runtimes\win-x64\lib" >> $Env:GITHUB_ENV
       - name: Print directory tree
         if: matrix.name == 'windows-x86_64'
         shell: pwsh
