@@ -163,7 +163,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p bundled_libs
-          BIN=target/release/ct2rs
+          BIN=target/release/libct2rs.rlib
 
           echo "Collecting dylibs for $BIN"
 
