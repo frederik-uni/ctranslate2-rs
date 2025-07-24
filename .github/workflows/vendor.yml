@@ -33,6 +33,12 @@ jobs:
         with:
           submodules: recursive
 
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: nightly
+
+      - uses: Swatinem/rust-cache@v2
+
       - name: Install dependencies (Linux x86_64)
         if: matrix.name == 'linux-x86_64'
         run: |
@@ -98,17 +104,21 @@ jobs:
           .\nuget.exe install intelopenmp.redist.win
           $base = Join-Path $Env:GITHUB_WORKSPACE "intelmkl.devel.win-x64.*"
           $mklDir = Get-ChildItem -Path $base -Directory | Select-Object -First 1
+          $newPath = Join-Path $mklDir.Directory.FullName "intelmkl.devel.win-x64"
+          Rename-Item -Path $mklDir.FullName -NewName $newPath
 
-          Rename-Item -Path "$($mklDir.FullName)\build\native\win-x64" -NewName "lib"
+          Rename-Item -Path "$($newPath.FullName)\build\native\win-x64" -NewName "lib"
 
-          $libPath = "$($mklDir.FullName)\build\native"
+          $libPath = "$($newPath.FullName)\build\native"
 
           $libDir = Join-Path $libPath "lib"
           Get-ChildItem $libDir -Filter "*_dll.lib" | ForEach-Object {
               $newName = $_.Name -replace "_dll", ""
               Copy-Item $_.FullName -Destination (Join-Path $libDir $newName)
           }
-          $source = "D:\a\ctranslate2-rs\ctranslate2-rs\intelopenmp.redist.win.2025.2.0.756\runtimes\win-x64\native"
+          $base2 = Join-Path $Env:GITHUB_WORKSPACE "intelopenmp.redist.win.*"
+          $openmp = Get-ChildItem -Path $base2 -Directory | Select-Object -First 1
+          $source = "$($openmp.FullName)\runtimes\win-x64\native"
           Copy-Item -Path "$source\*" -Destination $libPath\lib -Recurse -Force
           echo "MKLROOT=$libPath" >> $Env:GITHUB_ENV
           Get-ChildItem -Path $libPath -Recurse |
@@ -144,41 +154,42 @@ jobs:
           cp -r "$CUDNN_ROOT"/* "$CUDA_ROOT"
           rm cudnn.exe
           echo "CUDA_TOOLKIT_ROOT_DIR=$CUDA_ROOT" >> $GITHUB_ENV
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: nightly
-      - uses: Swatinem/rust-cache@v2
 
       - name: Build
         if: matrix.name == 'linux-arm64' || matrix.name == 'macos-arm64'
         run: cargo build --release --no-default-features -F "os-defaults,cuda-small-binary,_vendor"
+
       - name: Build
         if: matrix.name != 'linux-arm64' && matrix.name != 'macos-arm64'
         run: cargo build --release --no-default-features -F "os-defaults,cuda-small-binary,_vendor,mkl"
+
       - name: Upload vendored artifact
         uses: actions/upload-artifact@v4
         with:
           name: static-${{ matrix.name }}
           path: target/release/vendored.tar.gz
 
-      - name: Upload bundle
+      - name: Upload bundle(MacOS)
         if: matrix.name == 'macos-x86_64'
         uses: actions/upload-artifact@v4
         with:
-          name: bundled-${{ runner.name }}
+          name: dyn-${{ runner.name }}
           path: |
             /opt/homebrew/opt/libomp/lib/libiomp5.dylib
-      - name: Upload bundle
+
+      - name: Upload bundle(Linux)
         if: matrix.name == 'linux-x86_64'
         uses: actions/upload-artifact@v4
         with:
-          name: bundled-${{ runner.name }}
+          name: dyn-${{ runner.name }}
           path: |
             /usr/lib/x86_64-linux-gnu/libcudnn.so
-      - name: Upload bundle
+
+      - name: Upload bundle(Windows)
         if: matrix.name == 'windows-x86_64'
         uses: actions/upload-artifact@v4
         with:
-          name: bundled-${{ runner.name }}
+          name: dyn-${{ runner.name }}
           path: |
             C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/lib/x64/libcudnn.dll
+            intelmkl.devel.win-x64/build/native/lib/libiomp5md.dll
