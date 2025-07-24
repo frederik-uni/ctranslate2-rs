@@ -159,38 +159,65 @@ fn main() {
         if cfg!(feature = "os-defaults") {
             match (os, aarch64) {
                 (Os::Win, false) => {
-                    openmp_intel = false;
-                    openmp_comp = false;
-                    dnnl = true;
-                    cuda = true;
-                    cudnn = true;
-                    cuda_dynamic_loading = true;
-                    mkl = true;
-                }
-                (Os::Mac, true) => {
-                    accelarate = true;
-                    ruy = true;
-                }
-                (Os::Mac, false) => {
-                    dnnl = true;
-                    mkl = true;
                     openmp_intel = true;
                     openmp_comp = false;
-                }
-                (Os::Linux, true) => {
-                    openmp_comp = true;
-                    openmp_intel = false;
-                    openblas = true;
-                    ruy = true;
-                }
-                (Os::Linux, false) => {
                     dnnl = true;
-                    openmp_comp = true;
-                    openmp_intel = false;
-                    cudnn = true;
                     cuda = true;
+                    cudnn = true;
                     cuda_dynamic_loading = true;
                     mkl = true;
+                    ruy = false;
+                    accelarate = false;
+                    openblas = false;
+                }
+                (Os::Mac, true) => {
+                    openmp_intel = false;
+                    openmp_comp = false;
+                    dnnl = false;
+                    mkl = false;
+                    cuda = false;
+                    cudnn = false;
+                    cuda_dynamic_loading = false;
+                    ruy = true;
+                    accelarate = true;
+                    openblas = false;
+                }
+                (Os::Mac, false) => {
+                    openmp_intel = true;
+                    openmp_comp = false;
+                    dnnl = true;
+                    mkl = true;
+                    cuda = false;
+                    cudnn = false;
+                    cuda_dynamic_loading = false;
+                    ruy = false;
+                    accelarate = false;
+                    openblas = false;
+                }
+                (Os::Linux, true) => {
+                    openmp_intel = false;
+                    openmp_comp = true;
+                    dnnl = false;
+                    mkl = false;
+                    cuda = false;
+                    cudnn = false;
+                    cuda_dynamic_loading = false;
+                    ruy = true;
+                    accelarate = false;
+                    openblas = true;
+                }
+                (Os::Linux, false) => {
+                    openmp_intel = false;
+                    openmp_comp = true;
+                    dnnl = true;
+                    mkl = true;
+                    cuda = true;
+                    cudnn = true;
+                    cuda_dynamic_loading = true;
+                    ruy = false;
+                    accelarate = false;
+                    openblas = false;
+
                     tensor_parallel = true;
                     msse4_1 = true;
                 }
