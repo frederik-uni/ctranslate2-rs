@@ -220,6 +220,14 @@ fn main() {
             if cfg!(feature = "cuda-small-binary") {
                 cmake.define("CUDA_NVCC_FLAGS", "-Xfatbin=-compress-all");
             }
+            if os == Os::Win {
+                cmake.define("CUDA_INCLUDE_DIRS", env::var("CUDA_INCLUDE_DIRS").unwrap());
+                cmake.define(
+                    "CUDA_CUDART_LIBRARY",
+                    env::var("CUDA_CUDART_LIBRARY").unwrap(),
+                );
+            }
+
             println!("cargo:rustc-link-search={}", cuda.join("lib").display());
             println!("cargo:rustc-link-search={}", cuda.join("lib64").display());
             println!("cargo:rustc-link-search={}", cuda.join("lib/x64").display());
