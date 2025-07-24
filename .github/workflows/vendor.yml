@@ -143,6 +143,8 @@ jobs:
           rm cudnn.exe
           echo "CUDA_ROOT=$CUDA_ROOT" >> $GITHUB_ENV
           echo "CUDA_TOOLKIT_ROOT_DIR=$CUDA_ROOT" >> $GITHUB_ENV
+          echo "PATH=$CUDA_ROOT/bin:$PATH" >> $GITHUB_ENV
+          echo "CMAKE_CUDA_COMPILER=$CUDA_ROOT/bin/nvcc.exe" >> $GITHUB_ENV
 
       - uses: Swatinem/rust-cache@v2
       - uses: dtolnay/rust-toolchain@stable
