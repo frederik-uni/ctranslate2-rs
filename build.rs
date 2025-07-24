@@ -216,7 +216,10 @@ fn main() {
         if cuda {
             let cuda = cuda_root().expect("CUDA_TOOLKIT_ROOT_DIR is not specified");
             cmake.define("WITH_CUDA", "ON");
-            cmake.define("CUDA_TOOLKIT_ROOT_DIR", "Common");
+            if let Ok(v) = env::var("CUDA_TOOLKIT_ROOT_DIR") {
+                cmake.define("CUDA_TOOLKIT_ROOT_DIR", v);
+            }
+            cmake.define("CUDA_ARCH_LIST", "Common");
             if cfg!(feature = "cuda-small-binary") {
                 cmake.define("CUDA_NVCC_FLAGS", "-Xfatbin=-compress-all");
             }
