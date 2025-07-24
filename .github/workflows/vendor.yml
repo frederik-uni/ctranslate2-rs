@@ -84,6 +84,21 @@ jobs:
           hdiutil attach -noverify -noautofsck $(basename $ONEAPI_INSTALLER_URL)
           sudo /Volumes/$(basename $ONEAPI_INSTALLER_URL .dmg)/bootstrapper.app/Contents/MacOS/bootstrapper --silent --eula accept --components intel.oneapi.mac.mkl.devel
 
+      - name: Install Intel MKL and OpenMP packages
+        if: matrix.name == 'windows-x86_64'
+        run: |
+          curl -L -o nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+          .\nuget.exe install intelmkl.redist.win-x64
+          .\nuget.exe install intelmkl.devel.win-x64
+          .\nuget.exe install intelopenmp.redist.win
+          .\nuget.exe install intelopenmp.devel.win
+          echo "MKLROOT=D:\a\ctranslate2-rs\ctranslate2-rs\intelmkl.devel.win-x64.2025.2.0.627" >> $Env:GITHUB_ENV
+      - name: Print directory tree
+        if: matrix.name == 'windows-x86_64'
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path "D:\a\ctranslate2-rs\ctranslate2-rs\intelmkl.devel.win-x64.2025.2.0.627" -Recurse |
+          ForEach-Object { $_.FullName }
       - name: Install dependencies (Windows)
         if: matrix.name == 'windows-x86_64'
         run: |
@@ -113,15 +128,6 @@ jobs:
           Copy-Item "$env:CUDNN_ROOT/include/*" "$env:CUDA_ROOT/include/" -Recurse -Force
           Remove-Item cudnn.exe
 
-      - name: Install Intel MKL and OpenMP packages
-        if: matrix.name == 'windows-x86_64'
-        run: |
-          curl -L -o nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
-          .\nuget.exe install intelmkl.redist.win-x64
-          .\nuget.exe install intelmkl.devel.win-x64
-          .\nuget.exe install intelopenmp.redist.win
-          .\nuget.exe install intelopenmp.devel.win
-          echo "MKLROOT=D:\a\ctranslate2-rs\ctranslate2-rs\intelmkl.devel.win-x64.2025.2.0.627" >> $Env:GITHUB_ENV
       - uses: Swatinem/rust-cache@v2
       - uses: dtolnay/rust-toolchain@stable
         with:
