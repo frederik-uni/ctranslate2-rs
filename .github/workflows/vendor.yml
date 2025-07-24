@@ -92,8 +92,20 @@ jobs:
           .\nuget.exe install intelmkl.devel.win-x64
           .\nuget.exe install intelopenmp.redist.win
           .\nuget.exe install intelopenmp.devel.win
-          echo "MKLROOT=D:/a/ctranslate2-rs/ctranslate2-rs/intelmkl.devel.win-x64.2025.2.0.627/build/native" >> $Env:GITHUB_ENV
-          Rename-Item -Path "${{ github.workspace }}\intelmkl.devel.win-x64.2025.2.0.627\build\native\win-x64" -NewName "lib"
+          $base = Join-Path $Env:GITHUB_WORKSPACE "intelmkl.devel.win-x64.*"
+          $mklDir = Get-ChildItem -Path $base -Directory | Select-Object -First 1
+
+          Rename-Item -Path "$($mklDir.FullName)\build\native\win-x64" -NewName "lib"
+
+          $libPath = "$($mklDir.FullName)\build\native"
+
+          $libDir = Join-Path $libPath "lib"
+          Get-ChildItem $libDir -Filter "*_dll.lib" | ForEach-Object {
+              $newName = $_.Name -replace "_dll", ""
+              Copy-Item $_.FullName -Destination (Join-Path $libDir $newName)
+          }
+
+          echo "MKLROOT=$libPath" >> $Env:GITHUB_ENV
       - name: Print directory tree
         if: matrix.name == 'windows-x86_64'
         shell: pwsh
