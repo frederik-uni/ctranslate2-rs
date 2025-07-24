@@ -252,6 +252,7 @@ fn main() {
                     panic!("MKLROOT environment variable not set");
                 });
                 println!("cargo:include={}/include", mkl_root);
+                println!("cargo:rustc-link-search={}", mkl_root);
             }
         }
         if openblas {
