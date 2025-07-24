@@ -83,6 +83,15 @@ jobs:
           wget -q $ONEAPI_INSTALLER_URL
           hdiutil attach -noverify -noautofsck $(basename $ONEAPI_INSTALLER_URL)
           sudo /Volumes/$(basename $ONEAPI_INSTALLER_URL .dmg)/bootstrapper.app/Contents/MacOS/bootstrapper --silent --eula accept --components intel.oneapi.mac.mkl.devel
+
+      - name: Install Intel MKL and OpenMP packages
+        if: matrix.name == 'windows-x86_64'
+        run: |
+          curl -L -o nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+          .\nuget.exe install intelmkl.redist.win-x64
+          .\nuget.exe install intelmkl.devel.win-x64
+          .\nuget.exe install intelopenmp.redist.win
+          .\nuget.exe install intelopenmp.devel.win
       - name: Install dependencies (Windows)
         if: matrix.name == 'windows-x86_64'
         run: |
@@ -111,12 +120,6 @@ jobs:
           Copy-Item "$env:CUDNN_ROOT/lib/*" "$env:CUDA_ROOT/lib/" -Recurse -Force
           Copy-Item "$env:CUDNN_ROOT/include/*" "$env:CUDA_ROOT/include/" -Recurse -Force
           Remove-Item cudnn.exe
-          curl --netrc-optional -L -C - --retry 5 --retry-delay 10 -o webimage.exe https://registrationcenter-download.intel.com/akdlm/IRC_NAS/5b271b39-0773-49a3-b78d-c73ec42d1621/intel-cpp-essentials-2025.2.0.533_offline.exe
-          ./webimage.exe -s -a --silent --eula accept -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0
-          if ($LASTEXITCODE -ne 0) {
-                Write-Error "Intel MKL installation failed with exit code $LASTEXITCODE"
-          }
-          echo "MKLROOT=C:\Program Files (x86)\Intel\oneAPI\mkl" >> $env:GITHUB_ENV
 
       - name: Check Intel MKL installation
         if: matrix.name == 'windows-x86_64'
