@@ -105,7 +105,7 @@ jobs:
               $newName = $_.Name -replace "_dll", ""
               Copy-Item $_.FullName -Destination (Join-Path $libDir $newName)
           }
-          $redistBase = Join-Path $Env:GITHUB_WORKSPACE "intelmkl.redist.win-x64.*"
+          $redistBase = Join-Path $Env:GITHUB_WORKSPACE "intelopenmp.redist.win-x64.*"
           $redistDir = Get-ChildItem -Path $redistBase -Directory | Select-Object -First 1
           $redistLib = Join-Path $redistDir.FullName "redist\intel64"
 
@@ -115,7 +115,7 @@ jobs:
         if: matrix.name == 'windows-x86_64'
         shell: pwsh
         run: |
-          Get-ChildItem -Path "D:\a\ctranslate2-rs\ctranslate2-rs\intelopenmp.redist.win 2025.2.0.756" -Recurse |
+          Get-ChildItem -Path "D:\a\ctranslate2-rs\ctranslate2-rs\intelopenmp.redist.win.2025.2.0.756" -Recurse |
           ForEach-Object { $_.FullName }
       - name: Install dependencies (Windows)
         shell: bash
