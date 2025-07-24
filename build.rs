@@ -251,7 +251,7 @@ fn main() {
                 let mkl_root = env::var("MKLROOT").unwrap_or_else(|_| {
                     panic!("MKLROOT environment variable not set");
                 });
-                println!("cargo:include={}/native/include", mkl_root);
+                println!("cargo:include={}/include", mkl_root);
             }
         }
         if openblas {
