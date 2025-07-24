@@ -273,7 +273,6 @@ fn main() {
         }
         if dnnl {
             build_dnnl();
-            println!("cargo:rustc-link-lib=static=dnnl");
             cmake.define("WITH_DNNL", "ON");
         }
         if openmp_comp {
