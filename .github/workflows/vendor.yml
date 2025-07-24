@@ -104,7 +104,7 @@ jobs:
           .\nuget.exe install intelopenmp.redist.win
           $base = Join-Path $Env:GITHUB_WORKSPACE "intelmkl.devel.win-x64.*"
           $mklDir = Get-ChildItem -Path $base -Directory | Select-Object -First 1
-          $newPath = Join-Path $mklDir.Directory.FullName "intelmkl.devel.win-x64"
+          $newPath = Join-Path $Env:GITHUB_WORKSPACE "intelmkl.devel.win-x64"
           Rename-Item -Path $mklDir.FullName -NewName $newPath
 
           Rename-Item -Path "$($newPath.FullName)\build\native\win-x64" -NewName "lib"
@@ -176,7 +176,7 @@ jobs:
         if: matrix.name == 'macos-x86_64'
         uses: actions/upload-artifact@v4
         with:
-          name: dyn-${{ runner.name }}
+          name: dyn-${{ matrix.name }}
           path: |
             /usr/local/opt/libomp/lib/libiomp5.dylib
 
@@ -184,7 +184,7 @@ jobs:
         if: matrix.name == 'linux-x86_64'
         uses: actions/upload-artifact@v4
         with:
-          name: dyn-${{ runner.name }}
+          name: dyn-${{ matrix.name }}
           path: |
             /usr/lib/x86_64-linux-gnu/libcudnn.so
 
