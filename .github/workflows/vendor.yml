@@ -169,10 +169,10 @@ jobs:
           mkdir -p bundled_libs
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             BIN=target/release/ct2rs.exe
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          else
             BIN=target/release/ct2rs
           fi
-
+          echo "Runner OS is $RUNNER_OS"
           echo "Collecting dylibs for $BIN"
 
           if [[ "$RUNNER_OS" == "Linux" ]]; then
