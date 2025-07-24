@@ -110,37 +110,39 @@ jobs:
         if: matrix.name == 'windows-x86_64'
         shell: pwsh
         run: |
-          Get-ChildItem -Path "D:\a\ctranslate2-rs\ctranslate2-rs\intelmkl.devel.win-x64.2025.2.0.627" -Recurse |
+          Get-ChildItem -Path "D:\a\ctranslate2-rs\ctranslate2-rs\intelopenmp.devel.win.2025.2.0.756" -Recurse |
           ForEach-Object { $_.FullName }
       - name: Install dependencies (Windows)
+        shell: bash
         if: matrix.name == 'windows-x86_64'
         run: |
-          echo "CUDA_ROOT=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2" >> $env:GITHUB_ENV
-          echo "CUDA_PATH=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2" >> $env:GITHUB_ENV
-          echo "CUDA_TOOLKIT_ROOT_DIR=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2" >> $env:GITHUB_ENV
-          echo "CUDNN_ROOT=C:/Program Files/NVIDIA/CUDNN/v9.1" >> $env:GITHUB_ENV
-          echo "PATH=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2/bin;$env:PATH" >> $env:GITHUB_ENV
-          $env:CUDA_ROOT = "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2"
-          $env:CUDNN_ROOT = "C:/Program Files/NVIDIA/CUDNN/v9.1"
+          CUDA_ROOT="C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2"
+          curl --netrc-optional -L -nv -o cuda.exe https://developer.download.nvidia.com/compute/cuda/12.2.2/local_installers/cuda_12.2.2_537.13_windows.exe
+          ./cuda.exe -s nvcc_12.2 cudart_12.2 cublas_dev_12.2 curand_dev_12.2
+          rm cuda.exe
 
-          # Install CUDA
-          curl --retry 5 --netrc-optional -L -o cuda.exe https://developer.download.nvidia.com/compute/cuda/12.2.2/local_installers/cuda_12.2.2_537.13_windows.exe
-          Start-Process -Wait -FilePath .\cuda.exe -ArgumentList "-s nvcc_12.2 cudart_12.2 cublas_dev_12.2 curand_dev_12.2"
-          Remove-Item cuda.exe
+          CUDNN_ROOT="C:/Program Files/NVIDIA/CUDNN/v9.1"
+          curl --netrc-optional -L -nv -o cudnn.exe https://developer.download.nvidia.com/compute/cudnn/9.1.0/local_installers/cudnn_9.1.0_windows.exe
+          ./cudnn.exe -s
+          sleep 10
+          # Remove 11.8 folders
+          rm -rf "$CUDNN_ROOT/bin/11.8"
+          rm -rf "$CUDNN_ROOT/lib/11.8"
+          rm -rf "$CUDNN_ROOT/include/11.8"
 
-          # Install cuDNN
-          curl --netrc-optional -L -C - --retry 5 -o cudnn.exe https://developer.download.nvidia.com/compute/cudnn/9.1.0/local_installers/cudnn_9.1.0_windows.exe
-          Start-Process -Wait -FilePath .\cudnn.exe -ArgumentList "-s"
-          Start-Sleep -Seconds 10
-          Remove-Item -Recurse -Force "$env:CUDNN_ROOT/bin/11.8","$env:CUDNN_ROOT/lib/11.8","$env:CUDNN_ROOT/include/11.8"
-          Move-Item "$env:CUDNN_ROOT/bin/12.4/*" "$env:CUDNN_ROOT/bin/"
-          Move-Item "$env:CUDNN_ROOT/lib/12.4/*" "$env:CUDNN_ROOT/lib/"
-          Move-Item "$env:CUDNN_ROOT/include/12.4/*" "$env:CUDNN_ROOT/include/"
-          Remove-Item "$env:CUDNN_ROOT/bin/12.4","$env:CUDNN_ROOT/lib/12.4","$env:CUDNN_ROOT/include/12.4" -Recurse -Force
-          Copy-Item "$env:CUDNN_ROOT/bin/*" "$env:CUDA_ROOT/bin/" -Recurse -Force
-          Copy-Item "$env:CUDNN_ROOT/lib/*" "$env:CUDA_ROOT/lib/" -Recurse -Force
-          Copy-Item "$env:CUDNN_ROOT/include/*" "$env:CUDA_ROOT/include/" -Recurse -Force
-          Remove-Item cudnn.exe
+          # Move contents of 12.4 to parent directories
+          mv "$CUDNN_ROOT/bin/12.4/"* "$CUDNN_ROOT/bin/"
+          mv "$CUDNN_ROOT/lib/12.4/"* "$CUDNN_ROOT/lib/"
+          mv "$CUDNN_ROOT/include/12.4/"* "$CUDNN_ROOT/include/"
+
+          # Remove empty 12.4 folders
+          rmdir "$CUDNN_ROOT/bin/12.4"
+          rmdir "$CUDNN_ROOT/lib/12.4"
+          rmdir "$CUDNN_ROOT/include/12.4"
+          cp -r "$CUDNN_ROOT"/* "$CUDA_ROOT"
+          rm cudnn.exe
+          echo "CUDA_ROOT=$CUDA_ROOT" >> $GITHUB_ENV
+          echo "CUDA_TOOLKIT_ROOT_DIR=$CUDA_ROOT" >> $GITHUB_ENV
 
       - uses: Swatinem/rust-cache@v2
       - uses: dtolnay/rust-toolchain@stable
