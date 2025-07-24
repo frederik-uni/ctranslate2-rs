@@ -102,14 +102,16 @@ jobs:
           curl -L -o nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
           .\nuget.exe install intelmkl.devel.win-x64
           .\nuget.exe install intelopenmp.redist.win
-          $base = Join-Path $Env:GITHUB_WORKSPACE "intelmkl.devel.win-x64.*"
-          $mklDir = Get-ChildItem -Path $base -Directory | Select-Object -First 1
-          $newPath = Join-Path $Env:GITHUB_WORKSPACE "intelmkl.devel.win-x64"
-          Rename-Item -Path $mklDir.FullName -NewName $newPath
+          $globBase = Join-Path $Env:GITHUB_WORKSPACE "intelmkl.devel.win-x64.*"
+          $mklDir = Get-ChildItem -Path $globBase -Directory | Select-Object -First 1
 
-          Rename-Item -Path "$($newPath.FullName)\build\native\win-x64" -NewName "lib"
+          $cleanPath = Join-Path $Env:GITHUB_WORKSPACE "intelmkl.devel.win-x64"
 
-          $libPath = "$($newPath.FullName)\build\native"
+          Rename-Item -Path $mklDir.FullName -NewName $cleanPath
+
+          $libPath = Join-Path $cleanPath "build\native"
+
+          Rename-Item -Path (Join-Path $libPath "win-x64") -NewName "lib"
 
           $libDir = Join-Path $libPath "lib"
           Get-ChildItem $libDir -Filter "*_dll.lib" | ForEach-Object {
@@ -154,6 +156,7 @@ jobs:
           echo "CUDA_TOOLKIT_ROOT_DIR=$CUDA_ROOT" >> $GITHUB_ENV
 
       - name: List
+        if: matrix.name == 'windows-x86_64'
         run: |
           Get-ChildItem -Path C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/ -Recurse |
             ForEach-Object { $_.FullName }
