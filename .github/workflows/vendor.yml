@@ -115,7 +115,7 @@ jobs:
         if: matrix.name == 'windows-x86_64'
         shell: pwsh
         run: |
-          Get-ChildItem -Path "intelopenmp.redist.win 2025.2.0.756" -Recurse |
+          Get-ChildItem -Path "D:\a\ctranslate2-rs\ctranslate2-rs\intelopenmp.redist.win 2025.2.0.756" -Recurse |
           ForEach-Object { $_.FullName }
       - name: Install dependencies (Windows)
         shell: bash
