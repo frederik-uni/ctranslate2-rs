@@ -106,7 +106,7 @@ jobs:
               Copy-Item $_.FullName -Destination (Join-Path $libDir $newName)
           }
           echo "MKLROOT=$libPath" >> $Env:GITHUB_ENV
-          echo "LIBRARY_PATH=D:\a\ctranslate2-rs\ctranslate2-rs\intelopenmp.redist.win.2025.2.0.756" >> $Env:GITHUB_ENV
+          echo "LIBRARY_PATH=D:\a\ctranslate2-rs\ctranslate2-rs\intelopenmp.redist.win.2025.2.0.756\runtimes\win-x64\native\" >> $Env:GITHUB_ENV
       - name: Print directory tree
         if: matrix.name == 'windows-x86_64'
         shell: pwsh
