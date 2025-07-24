@@ -251,8 +251,7 @@ fn main() {
                 let mkl_root = env::var("MKLROOT").unwrap_or_else(|_| {
                     panic!("MKLROOT environment variable not set");
                 });
-                println!("cargo:include={}/include", mkl_root);
-                println!("cargo:rustc-link-search={}/win-x64", mkl_root);
+                println!("cargo:include={}/include", mkl_root.replace("/win-x64", ""));
             }
         }
         if openblas {
