@@ -137,6 +137,17 @@ jobs:
           rm cudnn.exe
           echo "CUDA_TOOLKIT_ROOT_DIR=$CUDA_ROOT" >> $GITHUB_ENV
           echo "CMAKE_CUDA_COMPILER=$CUDA_ROOT/bin/nvcc.exe" >> $GITHUB_ENV
+          file="CTranslate2/CMakeLists.txt"
+
+          policy_lines='cmake_policy(SET CMP0074 NEW)
+          cmake_policy(SET CMP0146 OLD)'
+
+          awk -v policies="$policy_lines" '
+          /^[ \t]*find_package\(CUDA[ \t]+11\.0[ \t]+REQUIRED\)/ {
+              print policies
+          }
+          { print }
+          ' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
       - name: Print directory tree
         if: matrix.name == 'windows-x86_64'
         shell: pwsh
