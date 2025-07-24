@@ -280,8 +280,8 @@ fn main() {
             cmake.define("WITH_MKL", "ON");
         }
         if openblas {
-            println!("cargo:include=/opt/OpenBLAS/include");
             println!("cargo:rustc-link-lib=static=openblas");
+            cmake.define("OPENBLAS_INCLUDE_DIR", "/opt/OpenBLAS/include");
             cmake.define("WITH_OPENBLAS", "ON");
         }
         if ruy {
