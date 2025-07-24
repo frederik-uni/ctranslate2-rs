@@ -78,7 +78,6 @@ jobs:
           echo "OPENBLAS_DIR=/opt/OpenBLAS" >> $GITHUB_ENV
           echo "OPENBLAS_STATIC=1" >> $GITHUB_ENV
           echo "CMAKE_PREFIX_PATH=/opt/OpenBLAS" >> $GITHUB_ENV
-          ls /opt/OpenBLAS/include
       # - name: Install dependencies (MacOS ARM64)
       #   if: matrix.name == 'macos-arm64'
       #   run: |
@@ -96,6 +95,7 @@ jobs:
         run: |
           curl -L -o nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
           .\nuget.exe install intelmkl.devel.win-x64
+          .\nuget.exe install intelopenmp.redist.win
           $base = Join-Path $Env:GITHUB_WORKSPACE "intelmkl.devel.win-x64.*"
           $mklDir = Get-ChildItem -Path $base -Directory | Select-Object -First 1
 
@@ -108,7 +108,10 @@ jobs:
               $newName = $_.Name -replace "_dll", ""
               Copy-Item $_.FullName -Destination (Join-Path $libDir $newName)
           }
-          Rename-Item -Path "D:\a\ctranslate2-rs\ctranslate2-rs\intelopenmp.redist.win.2025.2.0.756\runtimes\win-x64\native" -NewName "lib"
+          D:\a\ctranslate2-rs\ctranslate2-rs\intelopenmp.redist.win.2025.2.0.756\runtimes\win-x64\native
+          $libPath = "$($mklDir.FullName)\build\lib"
+          $source = "D:\a\ctranslate2-rs\ctranslate2-rs\intelopenmp.redist.win.2025.2.0.756\runtimes\win-x64\native"
+          Copy-Item -Path "$source\*" -Destination $libPath -Recurse -Force
           echo "MKLROOT=$libPath" >> $Env:GITHUB_ENV
       - name: Print directory tree
         if: matrix.name == 'windows-x86_64'
