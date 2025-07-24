@@ -112,8 +112,7 @@ jobs:
           Copy-Item "$env:CUDNN_ROOT/include/*" "$env:CUDA_ROOT/include/" -Recurse -Force
           Remove-Item cudnn.exe
           curl --netrc-optional -L -C - --retry 5 --retry-delay 10 -o webimage.exe https://registrationcenter-download.intel.com/akdlm/IRC_NAS/5b271b39-0773-49a3-b78d-c73ec42d1621/intel-cpp-essentials-2025.2.0.533_offline.exe
-          ./webimage.exe -a --silent --eula accept
-          ./intel-cpp-essentials-2025.2.0.533_offline.exe -s -a --silent --eula accept -p=NEED_VS2019_INTEGRATION=0
+          ./webimage.exe -s -a --silent --eula accept -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0
           if ($LASTEXITCODE -ne 0) {
                 Write-Error "Intel MKL installation failed with exit code $LASTEXITCODE"
           }
