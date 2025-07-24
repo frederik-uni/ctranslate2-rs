@@ -160,35 +160,23 @@ jobs:
         with:
           name: static-${{ matrix.name }}
           path: target/release/vendored.tar.gz
-      - name: Bundle dylibs (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          mkdir -p bundled_libs
-          BIN=target/release/ct2rs
-          ldd $BIN | awk '/=>/ {print $3}' | grep -v 'linux-vdso' | while read lib; do cp -v "$lib" bundled_libs/; done
-
-      - name: Bundle DLLs (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          mkdir bundled_libs
 
       - name: Upload bundle
-        if: runner.name == 'macos-x86_64'
+        if: matrix.name == 'macos-x86_64'
         uses: actions/upload-artifact@v4
         with:
           name: bundled-${{ runner.name }}
           path: |
             /opt/homebrew/opt/libomp/lib/libiomp5.dylib
       - name: Upload bundle
-        if: runner.name == 'linux-x86_64'
+        if: matrix.name == 'linux-x86_64'
         uses: actions/upload-artifact@v4
         with:
           name: bundled-${{ runner.name }}
           path: |
             /usr/lib/x86_64-linux-gnu/libcudnn.so
       - name: Upload bundle
-        if: runner.name == 'windows-x86_64'
+        if: matrix.name == 'windows-x86_64'
         uses: actions/upload-artifact@v4
         with:
           name: bundled-${{ runner.name }}
