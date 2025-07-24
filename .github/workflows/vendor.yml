@@ -158,7 +158,7 @@ jobs:
       - name: List
         if: matrix.name == 'windows-x86_64'
         run: |
-          Get-ChildItem -Path C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/ -Recurse |
+          Get-ChildItem -Path "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/" -Recurse |
             ForEach-Object { $_.FullName }
 
       - name: Build
