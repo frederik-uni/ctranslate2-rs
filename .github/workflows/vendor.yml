@@ -20,7 +20,7 @@ jobs:
           - name: macos-x86_64
             runs-on: macos-13
           - name: windows-x86_64
-            runs-on: windows-2022
+            runs-on: windows-2019
 
     name: Build on ${{ matrix.name }}
     runs-on: ${{ matrix.runs-on }}
