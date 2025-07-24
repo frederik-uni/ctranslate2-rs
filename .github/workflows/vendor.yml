@@ -83,6 +83,10 @@ jobs:
           wget -q $ONEAPI_INSTALLER_URL
           hdiutil attach -noverify -noautofsck $(basename $ONEAPI_INSTALLER_URL)
           sudo /Volumes/$(basename $ONEAPI_INSTALLER_URL .dmg)/bootstrapper.app/Contents/MacOS/bootstrapper --silent --eula accept --components intel.oneapi.mac.mkl.devel
+      - name: Check MKL installation path
+        if: matrix.name == 'windows-x86_64'
+        run: |
+          dir "C:\Program Files (x86)\Intel\oneAPI\mkl"
       - name: Install dependencies (Windows)
         if: matrix.name == 'windows-x86_64'
         run: |
@@ -112,19 +116,7 @@ jobs:
           Copy-Item "$env:CUDNN_ROOT/include/*" "$env:CUDA_ROOT/include/" -Recurse -Force
           Remove-Item cudnn.exe
           curl --netrc-optional -L -C - --retry 5 --retry-delay 10 -o webimage.exe https://registrationcenter-download.intel.com/akdlm/IRC_NAS/09a8acaf-265f-4460-866c-a3375ed5b4ff/intel-oneapi-base-toolkit-2025.2.0.591_offline.exe
-          ./webimage.exe -f webimage_extracted --log extract.log -a
-          $workingDir = "${{ github.workspace }}\webimage_extracted"
-              $setupExe = Join-Path $workingDir "setup.exe"
-              if (-Not (Test-Path $setupExe)) {
-                Write-Error "setup.exe not found at $setupExe"
-              }
-              Start-Process -FilePath $setupExe `
-                -ArgumentList "--silent", "--eula=accept", `
-                              "--components=intel.oneapi.win.mkl.devel", `
-                              "-p=NEED_VS2017_INTEGRATION=0", `
-                              "-p=NEED_VS2019_INTEGRATION=0" `
-                -WorkingDirectory $workingDir `
-                -NoNewWindow -Wait
+          ./webimage.exe -f webimage_extracted --log extract.log -a --silent --action install --components intel.oneapi.win.mkl.devel --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0
           if ($LASTEXITCODE -ne 0) {
                 Write-Error "Intel MKL installation failed with exit code $LASTEXITCODE"
           }
