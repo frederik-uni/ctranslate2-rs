@@ -174,7 +174,15 @@ jobs:
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             ldd $BIN | awk '/=>/ {print $3}' | grep -v 'linux-vdso' | while read lib; do cp -v "$lib" bundled_libs/; done
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            otool -L $BIN | tail -n +2 | awk '{print $1}' | grep -v '^/usr/lib' | while read lib; do cp -v "$lib" bundled_libs/; done
+            otool -L "$BIN" | tail -n +2 | awk '{print $1}' | grep -v '^/usr/lib' | while read lib; do
+              # Resolve @rpath and other dynamic paths if needed — optional step
+              # Skip if file doesn't exist
+              if [[ -f "$lib" ]]; then
+                cp -v "$lib" bundled_libs/
+              else
+                echo "Skipping missing library: $lib"
+              fi
+            done
           elif [[ "$RUNNER_OS" == "Windows" ]]; then
             mkdir -p bin_deps
             # Dumpbin or some custom logic — or pre-know the DLLs (like iomp5md.dll, etc)
