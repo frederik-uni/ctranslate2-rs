@@ -101,9 +101,9 @@ jobs:
         shell: pwsh
         run: |
           (Get-Content CTranslate2/CMakeLists.txt) `
-            -replace 'MultiThreaded\$\<\$\<CONFIG:Debug\>:Debug\>', 'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL'
+            -replace 'MultiThreaded\$\<\$\<CONFIG:Debug\>:Debug\>', 'MultiThreaded$<$<CONFIG:Debug>:Debug>DLL' `
             -replace '/MT', '/MD' |
-          Set-Content CTranslate2/CMakeLists.txt
+            Set-Content CTranslate2/CMakeLists.txt
       - name: Install Intel MKL and OpenMP packages
         if: matrix.name == 'windows-x86_64'
         run: |
