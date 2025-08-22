@@ -155,6 +155,9 @@ fn load_vendor(os: Os, aarch64: bool) -> Option<PathBuf> {
             Some(out_dir.to_path_buf())
         }
         (Os::Linux, false) => {
+            if !dyn_dir.join("libcudnn.so").exists() {
+                panic!("libcudnn.so not found in vendor directory {}", dyn_dir.display());
+            }
             println!("cargo:rustc-link-lib=cudnn");
             println!("cargo:rustc-link-lib=gomp");
             println!("cargo:rustc-link-lib=static=cudart_static");
