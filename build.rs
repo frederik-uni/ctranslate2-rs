@@ -147,6 +147,7 @@ fn load_vendor(os: Os, aarch64: bool) -> Option<PathBuf> {
         }
         (Os::Linux, true) => {
             println!("cargo:rustc-link-lib=gomp");
+            println!("cargo:rustc-link-lib=static=openblas");
             Some(out_dir.to_path_buf())
         }
         (Os::Mac, false) => {
