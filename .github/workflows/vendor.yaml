@@ -199,6 +199,7 @@ jobs:
             /usr/lib/x86_64-linux-gnu/libcudnn.so
             /usr/local/cuda/lib64/libcudart_static.a
             /opt/intel/mkl/lib/intel64
+            /opt/OpenBLAS/lib/libopenblas.a
 
       - name: Upload bundle(Windows)
         if: matrix.name == 'windows-x86_64'
