@@ -108,11 +108,11 @@ jobs:
         if: matrix.name == 'windows-x86_64'
         run: |
           curl -L -o nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
-          .\nuget.exe install intelmkl.devel.win-x64
+          .\nuget.exe install intelmkl.static.win-x64
           .\nuget.exe install intelopenmp.redist.win
-          $globBase = Join-Path $Env:GITHUB_WORKSPACE "intelmkl.devel.win-x64.*"
+          $globBase = Join-Path $Env:GITHUB_WORKSPACE "intelmkl.static.win-x64.*"
           $mklDir = Get-ChildItem -Path $globBase -Directory | Select-Object -First 1
-          $cleanPath = Join-Path $Env:GITHUB_WORKSPACE "intelmkl.devel.win-x64"
+          $cleanPath = Join-Path $Env:GITHUB_WORKSPACE "intelmkl.static.win-x64"
 
           Rename-Item -Path $mklDir.FullName -NewName $cleanPath
 
@@ -212,7 +212,7 @@ jobs:
         with:
           name: dyn-${{ matrix.name }}
           path: |
-            intelmkl.devel.win-x64/build/native/lib
+            intelmkl.static.win-x64/build/native/lib
       - name: Upload bundle(Windows)
         if: matrix.name == 'windows-x86_64'
         uses: actions/upload-artifact@v4
