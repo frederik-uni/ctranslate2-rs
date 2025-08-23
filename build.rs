@@ -111,15 +111,15 @@ fn load_vendor(os: Os, aarch64: bool) -> Option<PathBuf> {
         }
     );
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
-    let out_dir = out_dir
+    let main_dir = out_dir
         .parent()
         .unwrap()
         .parent()
         .unwrap()
         .parent()
-        .unwrap()
-        .join("ctranslate2-vendor");
-    
+        .unwrap();
+    let out_dir = main_dir.join("ctranslate2-vendor");
+
     let dyn_dir = out_dir.join("dyn");
 
     let mut status = StatusCode::from_u16(500).unwrap();
@@ -133,6 +133,27 @@ fn load_vendor(os: Os, aarch64: bool) -> Option<PathBuf> {
         return None;
     }
     println!("cargo:rustc-link-search=native={}", dyn_dir.display());
+
+    for file in dyn_dir
+        .read_dir()
+        .map(|v| v.into_iter().filter_map(|v| v.ok()).collect::<Vec<_>>())
+        .unwrap_or_default()
+    {
+        let p = file.path();
+        let ext = p
+            .extension()
+            .and_then(|v| v.to_str())
+            .unwrap_or_default()
+            .to_lowercase();
+        if ext == "dll" || ext == "so" || ext == "dylib" {
+            if let Some(v) = p.file_name() {
+                let tar = main_dir.join(v);
+                if !tar.exists() {
+                    std::fs::copy(p, tar).unwrap();
+                }
+            }
+        }
+    }
 
     match (os, aarch64) {
         (Os::Win, false) => {
@@ -157,7 +178,10 @@ fn load_vendor(os: Os, aarch64: bool) -> Option<PathBuf> {
         }
         (Os::Linux, false) => {
             if !dyn_dir.join("libcudnn.so").exists() {
-                panic!("libcudnn.so not found in vendor directory {}", dyn_dir.display());
+                panic!(
+                    "libcudnn.so not found in vendor directory {}",
+                    dyn_dir.display()
+                );
             }
             println!("cargo:rustc-link-lib=cudnn");
             println!("cargo:rustc-link-lib=gomp");
@@ -289,13 +313,13 @@ fn main() {
             let rustflags = env::var("CARGO_ENCODED_RUSTFLAGS").unwrap_or_default();
             if !rustflags.contains("target-feature=+crt-static") {
                 println!("cargo:warning=For Windows compilation, setting the environment variable `RUSTFLAGS=-C target-feature=+crt-static` might be required.");
-            }else {
+            } else {
                 cmake.static_crt(true);
             }
 
             println!("cargo::rustc-link-arg=/FORCE:MULTIPLE");
             cmake.profile("Release").cxxflag("/EHsc");
-        }else if os == Os::Linux {
+        } else if os == Os::Linux {
             cmake.define("CMAKE_POSITION_INDEPENDENT_CODE", "ON");
         }
 
@@ -315,7 +339,6 @@ fn main() {
                     },
                     "-Xcompiler=-fPIC"
                 ),
-
             );
 
             println!("cargo:rustc-link-search={}", cuda.join("lib").display());
