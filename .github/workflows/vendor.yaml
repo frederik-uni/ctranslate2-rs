@@ -110,6 +110,7 @@ jobs:
           curl -L -o nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
           .\nuget.exe install intelmkl.static.win-x64
           .\nuget.exe install intelopenmp.redist.win
+          .\nuget.exe install intelopenmp.devel.win
           $globBase = Join-Path $Env:GITHUB_WORKSPACE "intelmkl.static.win-x64.*"
           $mklDir = Get-ChildItem -Path $globBase -Directory | Select-Object -First 1
           $cleanPath = Join-Path $Env:GITHUB_WORKSPACE "intelmkl.static.win-x64"
@@ -127,6 +128,10 @@ jobs:
           }
           $base2 = Join-Path $Env:GITHUB_WORKSPACE "intelopenmp.redist.win.*"
           $openmp = Get-ChildItem -Path $base2 -Directory | Select-Object -First 1
+          $source = "$($openmp.FullName)\runtimes\win-x64\native"
+          Copy-Item -Path "$source\*" -Destination $libPath\lib -Recurse -Force
+          $base3 = Join-Path $Env:GITHUB_WORKSPACE "intelopenmp.devel.win.*"
+          $openmp = Get-ChildItem -Path $base3 -Directory | Select-Object -First 1
           $source = "$($openmp.FullName)\runtimes\win-x64\native"
           Copy-Item -Path "$source\*" -Destination $libPath\lib -Recurse -Force
           echo "MKLROOT=$libPath" >> $Env:GITHUB_ENV
