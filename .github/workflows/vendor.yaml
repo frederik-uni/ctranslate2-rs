@@ -132,7 +132,7 @@ jobs:
           Copy-Item -Path "$source\*" -Destination $libPath\lib -Recurse -Force
           $base3 = Join-Path $Env:GITHUB_WORKSPACE "intelopenmp.devel.win.*"
           $openmp = Get-ChildItem -Path $base3 -Directory | Select-Object -First 1
-          $source = "$($openmp.FullName)\runtimes\win-x64\native"
+          $source = "$($openmp.FullName)\build\native\win-x64"
           Copy-Item -Path "$source\*" -Destination $libPath\lib -Recurse -Force
           echo "MKLROOT=$libPath" >> $Env:GITHUB_ENV
 
