@@ -133,7 +133,10 @@ fn load_vendor(os: Os, aarch64: bool) -> Option<PathBuf> {
         return None;
     }
     println!("cargo:rustc-link-search=native={}", dyn_dir.display());
-
+    println!(
+        "cargo:warning=Required dylibs are in: {}",
+        main_dir.display()
+    );
     for file in dyn_dir
         .read_dir()
         .map(|v| v.into_iter().filter_map(|v| v.ok()).collect::<Vec<_>>())
