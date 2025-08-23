@@ -159,7 +159,7 @@ fn load_vendor(os: Os, aarch64: bool) -> Option<PathBuf> {
         (Os::Win, false) => {
             println!("cargo:rustc-link-lib=static=cudart_static");
             println!("cargo:rustc-link-lib=cudnn");
-            println!("cargo:rustc-link-lib=iomp5md");
+            println!("cargo:rustc-link-lib=libiomp5md");
             build_dnnl();
             Some(out_dir.to_path_buf())
         }
@@ -396,7 +396,7 @@ fn main() {
             cmake.define("OPENMP_RUNTIME", "COMP");
         } else if openmp_intel {
             if os == Os::Win {
-                println!("cargo:rustc-link-lib=dylib=iomp5md");
+                println!("cargo:rustc-link-lib=dylib=libiomp5md");
             } else {
                 println!("cargo:rustc-link-lib=iomp5");
             }
