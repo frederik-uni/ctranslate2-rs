@@ -97,7 +97,10 @@ enum Os {
 }
 
 fn watch_dir_recursively(dir: &Path) {
-    for entry in fs::read_dir(dir).expect("Failed to read directory") {
+    for entry in fs::read_dir(dir)
+        .map(|v| v.collect::<Vec<_>>())
+        .unwrap_or_default()
+    {
         let entry = entry.expect("Failed to read entry");
         let path = entry.path();
 
