@@ -153,7 +153,7 @@ fn load_vendor(os: Os, aarch64: bool) -> Option<PathBuf> {
         main_dir.display()
     );
     for file in files {
-        println!("- {}", file.display());
+        println!("cargo:warning=- {}", file.display());
         let tar = main_dir.join(file.file_name().unwrap_or_default());
         std::fs::copy(file, tar).unwrap();
     }
