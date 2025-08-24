@@ -6,9 +6,9 @@
 //
 // http://opensource.org/licenses/mit-license.php
 
-use std::env;
 use std::fs::File;
 use std::path::{Path, PathBuf};
+use std::{env, fs};
 
 use cmake::Config;
 use flate2::Compression;
@@ -96,6 +96,19 @@ enum Os {
     Unknown,
 }
 
+fn watch_dir_recursively(dir: &Path) {
+    for entry in fs::read_dir(dir).expect("Failed to read directory") {
+        let entry = entry.expect("Failed to read entry");
+        let path = entry.path();
+
+        if path.is_file() {
+            println!("cargo:rerun-if-changed={}", path.display());
+        } else if path.is_dir() {
+            watch_dir_recursively(&path);
+        }
+    }
+}
+
 fn load_vendor(os: Os, aarch64: bool) -> Option<PathBuf> {
     let url = format!(
         "https://github.com/frederik-uni/ctranslate2-rs/releases/download/ctranslate2-05.08.2025/{}-{}.tar.gz",
@@ -133,6 +146,8 @@ fn load_vendor(os: Os, aarch64: bool) -> Option<PathBuf> {
         return None;
     }
 
+    watch_dir_recursively(&dyn_dir);
+
     let files = dyn_dir
         .read_dir()
         .map(|v| v.into_iter().filter_map(|v| v.ok()).collect::<Vec<_>>())
@@ -159,6 +174,7 @@ fn load_vendor(os: Os, aarch64: bool) -> Option<PathBuf> {
         // Github actions has sometimes some issues with finding files. I hope that fixes it
         File::open(&file).unwrap().sync_all().unwrap();
         File::open(&tar).unwrap().sync_all().unwrap();
+        println!("cargo:rerun-if-changed={}", tar.display());
     }
 
     println!("cargo:rustc-link-search=native={}", dyn_dir.display());
