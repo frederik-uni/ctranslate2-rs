@@ -172,7 +172,6 @@ fn load_vendor(os: Os, aarch64: bool) -> Option<PathBuf> {
         let tar = main_dir.join(file.file_name().unwrap_or_default());
         std::fs::copy(&file, &tar).unwrap();
         // Github actions has sometimes some issues with finding files. I hope that fixes it
-        File::open(&file).unwrap().sync_all().unwrap();
         File::open(&tar).unwrap().sync_all().unwrap();
         println!("cargo:rerun-if-changed={}", tar.display());
     }
