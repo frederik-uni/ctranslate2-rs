@@ -132,31 +132,33 @@ fn load_vendor(os: Os, aarch64: bool) -> Option<PathBuf> {
     if !status.is_success() {
         return None;
     }
-    println!("cargo:rustc-link-search=native={}", dyn_dir.display());
+
+    let files = dyn_dir
+        .read_dir()
+        .map(|v| v.into_iter().filter_map(|v| v.ok()).collect::<Vec<_>>())
+        .unwrap_or_default()
+        .iter()
+        .map(|v| v.path())
+        .filter(|p| {
+            let ext = p
+                .extension()
+                .and_then(|v| v.to_str())
+                .unwrap_or_default()
+                .to_lowercase();
+            ext == "dll" || ext == "so" || ext == "dylib"
+        })
+        .collect::<Vec<_>>();
     println!(
         "cargo:warning=Required dylibs are in: {}",
         main_dir.display()
     );
-    for file in dyn_dir
-        .read_dir()
-        .map(|v| v.into_iter().filter_map(|v| v.ok()).collect::<Vec<_>>())
-        .unwrap_or_default()
-    {
-        let p = file.path();
-        let ext = p
-            .extension()
-            .and_then(|v| v.to_str())
-            .unwrap_or_default()
-            .to_lowercase();
-        if ext == "dll" || ext == "so" || ext == "dylib" {
-            if let Some(v) = p.file_name() {
-                let tar = main_dir.join(v);
-                if !tar.exists() {
-                    std::fs::copy(p, tar).unwrap();
-                }
-            }
-        }
+    for file in files {
+        println!("- {}", file.display());
+        let tar = main_dir.join(file.file_name().unwrap_or_default());
+        std::fs::copy(file, tar).unwrap();
     }
+
+    println!("cargo:rustc-link-search=native={}", dyn_dir.display());
 
     match (os, aarch64) {
         (Os::Win, false) => {
