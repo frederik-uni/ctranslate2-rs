@@ -32,9 +32,10 @@ jobs:
     container: ${{ matrix.container }}
     steps:
       - name: Install newer Git
+        if: matrix.name == 'linux-x86_64'
         run: |
           apt-get update
-          apt-get install -y git
+          apt-get install -y git curl
       - uses: actions/checkout@v4
         with:
           submodules: recursive
