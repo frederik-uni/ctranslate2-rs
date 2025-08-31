@@ -56,8 +56,8 @@ jobs:
           wget https://developer.download.nvidia.com/compute/cuda/repos/debian11/x86_64/cuda-keyring_1.1-1_all.deb
           sudo dpkg -i cuda-keyring_1.1-1_all.deb
           sudo apt update
-          sudo apt install cuda-toolkit-12-6 cudnn9
-          sudo apt install libopenmpi-dev openmpi-bin
+          sudo apt install -y cuda-toolkit-12-6 cudnn9
+          sudo apt install -y libopenmpi-dev openmpi-bin
           sudo apt install -y libnccl2 libnccl-dev
           echo "CUDA_PATH=/usr/local/cuda" >> $GITHUB_ENV
           echo "CUDA_ROOT=/usr/local/cuda" >> $GITHUB_ENV
