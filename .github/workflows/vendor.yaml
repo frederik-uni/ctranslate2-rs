@@ -14,7 +14,7 @@ jobs:
           - name: linux-x86_64
             os: Linux
             runs-on: ubuntu-22.04
-            container: debian:bullseye
+            container: ubuntu:20.04
           - name: linux-arm64
             runs-on: ubuntu-24.04-arm
           - name: macos-arm64
@@ -53,10 +53,10 @@ jobs:
           sudo apt install build-essential gcc dirmngr ca-certificates software-properties-common apt-transport-https dkms curl -y
           #curl -fSsL https://developer.download.nvidia.com/compute/cuda/repos/debian11/x86_64/3bf863cc.pub | sudo gpg --dearmor | sudo tee /usr/share/keyrings/nvidia-drivers.gpg > /dev/null 2>&1
           #echo 'deb [signed-by=/usr/share/keyrings/nvidia-drivers.gpg] https://developer.download.nvidia.com/compute/cuda/repos/debian11/x86_64/ /' | sudo tee /etc/apt/sources.list.d/nvidia-drivers.list
-          wget https://developer.download.nvidia.com/compute/cuda/repos/debian11/x86_64/cuda-keyring_1.1-1_all.deb
+          wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.1-1_all.deb
           sudo dpkg -i cuda-keyring_1.1-1_all.deb
           sudo apt update
-          sudo apt install -y cuda-toolkit-12-6 cudnn9
+          sudo apt install -y cuda-12-9 cudnn9
           sudo apt install -y libopenmpi-dev openmpi-bin
           sudo apt install -y libnccl2 libnccl-dev
           echo "CUDA_PATH=/usr/local/cuda" >> $GITHUB_ENV
