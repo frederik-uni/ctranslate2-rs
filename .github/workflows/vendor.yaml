@@ -58,7 +58,7 @@ jobs:
           wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.1-1_all.deb
           sudo dpkg -i cuda-keyring_1.1-1_all.deb
           apt update
-          apt install -y cuda-12-9 cudnn9
+          apt install -y cuda-12-4 cudnn9
           apt install -y libopenmpi-dev openmpi-bin
           apt install -y libnccl2 libnccl-dev
           echo "CUDA_PATH=/usr/local/cuda" >> $GITHUB_ENV
