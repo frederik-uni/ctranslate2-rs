@@ -353,7 +353,7 @@ fn main() {
             let cuda = cuda_root().expect("CUDA_TOOLKIT_ROOT_DIR is not specified");
             cmake.define("WITH_CUDA", "ON");
             cmake.define("CUDA_TOOLKIT_ROOT_DIR", &cuda);
-            cmake.define("CUDA_ARCH_LIST", "5.0;5.2;5.3;6.0;6.2;7.0;7.2;7.5;8.0;8.6;8.9;9.0");
+            cmake.define("CUDA_ARCH_LIST", "5.3;6.0;6.2;7.0;7.2;7.5;8.0;8.6;8.9;9.0");
             cmake.define(
                 "CUDA_NVCC_FLAGS",
                 format!(
