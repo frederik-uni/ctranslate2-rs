@@ -52,15 +52,15 @@ jobs:
           # cuda,cudnn
           export DEBIAN_FRONTEND=noninteractive
           export TZ=Etc/UTC
-          sudo apt install build-essential gcc dirmngr ca-certificates software-properties-common apt-transport-https dkms curl -y
+          apt install build-essential gcc dirmngr ca-certificates software-properties-common apt-transport-https dkms curl -y
           #curl -fSsL https://developer.download.nvidia.com/compute/cuda/repos/debian11/x86_64/3bf863cc.pub | sudo gpg --dearmor | sudo tee /usr/share/keyrings/nvidia-drivers.gpg > /dev/null 2>&1
           #echo 'deb [signed-by=/usr/share/keyrings/nvidia-drivers.gpg] https://developer.download.nvidia.com/compute/cuda/repos/debian11/x86_64/ /' | sudo tee /etc/apt/sources.list.d/nvidia-drivers.list
           wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.1-1_all.deb
           sudo dpkg -i cuda-keyring_1.1-1_all.deb
-          sudo apt update
-          sudo apt install -y cuda-12-9 cudnn9
-          sudo apt install -y libopenmpi-dev openmpi-bin
-          sudo apt install -y libnccl2 libnccl-dev
+          apt update
+          apt install -y cuda-12-9 cudnn9
+          apt install -y libopenmpi-dev openmpi-bin
+          apt install -y libnccl2 libnccl-dev
           echo "CUDA_PATH=/usr/local/cuda" >> $GITHUB_ENV
           echo "CUDA_ROOT=/usr/local/cuda" >> $GITHUB_ENV
           echo "CUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda" >> $GITHUB_ENV
@@ -71,8 +71,8 @@ jobs:
           wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
           sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
           sudo sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
-          sudo apt-get update
-          sudo apt-get install -y intel-mkl-64bit-2020.4-912
+          apt-get update
+          apt-get install -y intel-mkl-64bit-2020.4-912
           echo "LD_LIBRARY_PATH=/opt/intel/lib/intel64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           # hack
           file=CTranslate2/include/ctranslate2/devices.h
