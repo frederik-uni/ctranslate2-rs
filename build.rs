@@ -76,6 +76,7 @@ fn build_dnnl() {
     }
 
     let dst = Config::new(source_dir)
+        .define("CMAKE_POLICY_VERSION_MINIMUM", "3.5")
         .define("ONEDNN_LIBRARY_TYPE", "STATIC")
         .define("ONEDNN_BUILD_EXAMPLES", "OFF")
         .define("ONEDNN_BUILD_TESTS", "OFF")
