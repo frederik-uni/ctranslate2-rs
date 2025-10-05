@@ -8,7 +8,6 @@ edition.workspace = true
 include = [
     "/include",
     "/src",
-    "/build.rs",
     "/LICENSE",
     "/examples",
     "/CTranslate2/CMakeLists.txt",
@@ -31,10 +30,9 @@ repository.workspace = true
 description = "Rust bindings for OpenNMT/CTranslate2"
 
 [dependencies]
+ctranslate2-src = "0.1.1"
 anyhow = "1.0"
 cxx = { version = "1.0", features = ["c++17"] }
-intel-onemkl-prebuild = { version = "0.2", optional = true }
-onednn-src = { version = "0.1", optional = true }
 sentencepiece = { version = "0.12", optional = true }
 tokenizers = { version = "0.22", optional = true }
 
@@ -46,12 +44,6 @@ serde_json = { version = "1.0", optional = true }
 
 # Dependencies for Hugging Face integration
 hf-hub = { version = "0.4", optional = true }
-
-[target.'cfg(not(target_os = "windows"))'.dependencies]
-openblas-src = { version = "0.10.13", features = ["static"], optional = true }
-
-[target.'cfg(target_os = "windows")'.dependencies]
-openblas-src = { version = "0.10.13", features = ["static", "system"], optional = true }
 
 [dev-dependencies]
 clap = { version = "4.5", features = ["derive"] }
@@ -76,24 +68,20 @@ whisper = [
 ]
 hub = ["dep:hf-hub"]
 
-# Features to select backends.
-cuda = []
-cudnn = ["cuda"]
-mkl = ["dep:intel-onemkl-prebuild"]
-system-mkl = ["mkl", "intel-onemkl-prebuild/system"]
-openblas = ["dep:openblas-src"]
-dnnl = ["dep:onednn-src"]
-ruy = []
-accelerate = []
-openmp-runtime-comp = []
-openmp-runtime-intel = []
-msse4_1 = []
+mkl = ["ctranslate2-src/mkl"]
+openblas = ["ctranslate2-src/openblas"]
+dnnl = ["ctranslate2-src/dnnl"]
+ruy = ["ctranslate2-src/ruy"]
+accelerate = ["ctranslate2-src/accelerate"]
+openmp-runtime-comp = ["ctranslate2-src/openmp-runtime-comp"]
+openmp-runtime-intel = ["ctranslate2-src/openmp-runtime-intel"]
+msse4_1 = ["ctranslate2-src/msse4_1"]
 
-# Features to enable GPU functionality.
-flash-attention = []
-tensor-parallel = []
-cuda-dynamic-loading = ["cuda"]
-cuda-small-binary = []
+# GPU / CUDA related
+flash-attention = ["ctranslate2-src/flash-attention"]
+tensor-parallel = ["ctranslate2-src/tensor-parallel"]
+cuda-dynamic-loading = ["ctranslate2-src/cuda-dynamic-loading", "cuda"]
+cuda-small-binary = ["ctranslate2-src/cuda-small-binary"]
 
 # Futures to select tokenizers.
 all-tokenizers = ["sentencepiece", "tokenizers"]
@@ -143,3 +131,6 @@ required-features = ["whisper"]
 
 [package.metadata.docs.rs]
 features = ["whisper", "hub"]
+cuda = ["ctranslate2-src/cuda"]
+cudnn = ["ctranslate2-src/cudnn", "cuda"]
+# Features to select backends.
